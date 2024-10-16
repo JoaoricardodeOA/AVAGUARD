@@ -1,0 +1,55 @@
+/* styles/homepage.module.css */
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    gap: 27.84px;
+    position: relative; /* Changed from absolute to relative for proper layout */
+    width: 100%; /* Change to relative width */
+    height: auto; /* Adjust based on content */
+  }
+  
+  .hero-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 66.8227px 100.234px;
+    gap: 73px;
+    width: 100%; /* Change to relative width */
+    background: rgba(33, 148, 243, 0.1);
+  }
+  
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    gap: 11.14px;
+    width: 592px;
+    height: auto; /* Adjust based on content */
+  }
+  
+  .hero-text h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 44.5484px;
+    line-height: 53px;
+    color: #4D4D4D;
+  }
+  
+  .hero-text p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 11.1371px;
+    line-height: 17px;
+    color: #717171;
+  }
+  
+  .hero-illustration {
+    margin: 0 auto;
+    width: 272.16px;
+    height: auto; /* Adjust based on content */
+  }
+  
