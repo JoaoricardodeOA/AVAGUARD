@@ -1,10 +1,10 @@
 import { ButtonPrimary } from "@/src/components/Buttons/ButtonPrimary";
 import { CustomFormInput } from "@/src/components/Inputs/CustomFormInput";
 import { CustomFormTextArea } from "@/src/components/Inputs/CustomFormTextArea";
-import { Card, CardBody, CardFooter, CardHeader, Input, Navbar } from "@nextui-org/react";
+import { Navbar } from "@/src/components/navbar";
+import { Card, CardBody, CardFooter, CardHeader, Input } from "@nextui-org/react";
 import { Facebook, Instagram, Send, Youtube } from "lucide-react";
 import Image from "next/image";
-
 
 const logos = [
     { src: '/ung.png', alt: 'Ung', width: 145 / 1.5, height: 50 },
