@@ -6,15 +6,15 @@ import {
   NavbarBrand,
   NavbarItem,
   NavbarMenuItem,
-} from "@nextui-org/navbar";
-import { Button } from "@nextui-org/button";
-import { Link } from "@nextui-org/link";
-import { link as linkStyles } from "@nextui-org/theme";
-import NextLink from "next/link";
-import clsx from "clsx";
-import { ArrowBigRight, ArrowRight } from "lucide-react";
-import { ButtonPrimary } from "./Buttons/ButtonPrimary";
-import { siteConfig } from "@/config/site";
+} from "@nextui-org/navbar"
+import { Button } from "@nextui-org/button"
+import { Link } from "@nextui-org/link"
+import { link as linkStyles } from "@nextui-org/theme"
+import NextLink from "next/link"
+import clsx from "clsx"
+import { ArrowBigRight, ArrowRight } from "lucide-react"
+import { ButtonPrimary } from "./Buttons/ButtonPrimary"
+import { siteConfig } from '../config/site'
 
 export const Navbar = () => {
   return (
@@ -79,5 +79,5 @@ export const Navbar = () => {
         </div>
       </NavbarMenu>
     </NextUINavbar>
-  );
-};
+  )
+}

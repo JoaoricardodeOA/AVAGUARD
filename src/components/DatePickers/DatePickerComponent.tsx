@@ -16,6 +16,7 @@ function DatePickerComponent(props: DatePickerComponentProps) {
                 label={props.label}
                 size={props.variant}
                 variant="bordered"
+                radius='full'
                 classNames={{
                     label: "text-black/50 dark:text-white/90",
                     input: [

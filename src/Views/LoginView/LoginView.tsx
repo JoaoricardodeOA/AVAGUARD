@@ -1,45 +1,14 @@
-import { ButtonPrimary } from "@/src/components/Buttons/ButtonPrimary";
-import { InputText } from "@/src/components/Inputs/InputText";
-import { Button, Input } from "@nextui-org/react"
+import { ButtonPrimary } from "@/src/components/Buttons/ButtonPrimary"
+import { InputText } from "@/src/components/Inputs/InputText"
 import { ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react"
-import { useState } from "react";
-
-const classNames = {
-    mainWrapper: [
-        "bg-white",
-        "hover:bg-white",
-    ],
-    label: "text-black/50 dark:text-white/90",
-    input: [
-        "bg-white",
-        "text-black/90 dark:text-white/90",
-        "placeholder:text-gray-400",
-        "ps-10",
-    ],
-    innerWrapper: [
-        "bg-transparent",
-        "hover:bg-transparent",
-    ],
-    inputWrapper: [
-        "ps-5",
-        "py-8",
-        "bg-white",
-        "border",
-        "border-gray-200",
-        "rounded-full",
-        "shadow-sm",
-        "hover:bg-white",
-        "focus:border-gray-400",
-        "focus:bg-white",
-    ],
-}
+import { useState } from "react"
 
 function LoginView() {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(false)
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
-    const toggleVisibility = () => setIsVisible(!isVisible);
+    const toggleVisibility = () => setIsVisible(!isVisible)
 
     function handleOnChangeEmail(e: React.ChangeEvent<HTMLInputElement>) {
         e.preventDefault()

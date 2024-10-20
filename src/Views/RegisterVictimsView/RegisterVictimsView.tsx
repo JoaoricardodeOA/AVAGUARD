@@ -11,7 +11,7 @@ function RegisterVictimsView() {
         <>
             <Navbar />
 
-            <div className="mt-10 container mx-auto">
+            <div className="mt-10 container max-w-screen-xl mx-auto px-10">
                 <div className="w-full flex justify-between items-center">
                     <h1 className="text-2xl text-shade-1 font-medium">Cadastro de Vítimas</h1>
                     <div className="flex items-center gap-3">
