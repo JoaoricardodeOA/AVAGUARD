@@ -7,11 +7,12 @@ interface BurronPrimaryOutlineProps {
     icon?: ReactElement
     children: string
     className?: string
+    onPress?: (e: any) => void
 }
 
 export function BurronPrimaryOutline(props: BurronPrimaryOutlineProps) {
     return (
-        <Button variant="bordered" size={props.variant} className={`border-primary border-small rounded-2xl text-primary text-xs font-normal ${props.className}`}>
+        <Button onPress={props.onPress} variant="bordered" size={props.variant} className={`border-primary border-small rounded-2xl text-primary text-xs font-normal ${props.className}`}>
             {
                 props.variantIcon === "left" && props.icon && (
                     props.icon

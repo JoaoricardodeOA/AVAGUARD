@@ -96,7 +96,7 @@ function HomeView() {
     return (
         <>
             <Navbar />
-            <div className="container mx-auto mt-14">
+            <div className="container max-w-screen-xl mx-auto px-10 mt-14">
                 <div className="flex items-center gap-3">
                     <InputText
                         className="w-3/4"
@@ -119,7 +119,7 @@ function HomeView() {
                 {
                     filteredVictims.every(victims => victims.victims.length === 0) ? (
                         <div className="mt-10">
-                            <AlertInfo message="Nunhuma vítima cadastrada."/>
+                            <AlertInfo message="Nunhuma vítima cadastrada." />
                         </div>
                     ) : (
                         filteredVictims.map(victimis => (

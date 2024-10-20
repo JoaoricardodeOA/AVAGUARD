@@ -1,20 +1,5 @@
+import { ListItemsType } from '@/src/types/select'
 import { Select, SelectItem } from "@nextui-org/react"
-
-export const animals = [
-    { key: "cat", label: "Cat" },
-    { key: "dog", label: "Dog" },
-    { key: "elephant", label: "Elephant" },
-    { key: "lion", label: "Lion" },
-    { key: "tiger", label: "Tiger" },
-    { key: "giraffe", label: "Giraffe" },
-    { key: "dolphin", label: "Dolphin" },
-    { key: "penguin", label: "Penguin" },
-    { key: "zebra", label: "Zebra" },
-    { key: "shark", label: "Shark" },
-    { key: "whale", label: "Whale" },
-    { key: "otter", label: "Otter" },
-    { key: "crocodile", label: "Crocodile" }
-];
 
 interface SelectComponentProps {
     variant: 'sm' | 'md' | 'lg',
@@ -22,6 +7,7 @@ interface SelectComponentProps {
     label: string
     className?: string
     align?: 'left' | 'center' | 'right'
+    itens: ListItemsType[]
 }
 
 function SelectComponent(props: SelectComponentProps) {
@@ -57,9 +43,9 @@ function SelectComponent(props: SelectComponentProps) {
                     ]
                 }}
             >
-                {animals.map((animal) => (
-                    <SelectItem key={animal.key}>
-                        {animal.label}
+                {props.itens.map((item) => (
+                    <SelectItem key={item.ID}>
+                        {item.label}
                     </SelectItem>
                 ))}
             </Select>

@@ -1,4 +1,4 @@
-import { Input, Textarea } from "@nextui-org/input";
+import { Input, Textarea } from "@nextui-org/input"
 
 interface CustomFormTextAreaProps {
     variant: 'sm' | 'md' | 'lg',
@@ -32,7 +32,7 @@ function CustomFormTextArea(props: CustomFormTextAreaProps) {
                     "bg-white",
                     "border",
                     "border-gray-200",
-                    "rounded-full",
+                    "rounded-[2rem]",
                     "shadow-sm",
                     "hover:bg-white",
                     "focus:border-gray-400",
@@ -42,7 +42,7 @@ function CustomFormTextArea(props: CustomFormTextAreaProps) {
                 className={props.className}
             />
         </div>
-    );
+    )
 }
 
 export {

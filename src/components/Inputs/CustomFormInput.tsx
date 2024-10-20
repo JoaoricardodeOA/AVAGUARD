@@ -1,4 +1,5 @@
-import { Input } from "@nextui-org/input";
+import { Input } from "@nextui-org/input"
+import { ReactElement } from 'react'
 
 interface CustomFormInputProps {
     variant: 'sm' | 'md' | 'lg',
@@ -7,6 +8,9 @@ interface CustomFormInputProps {
     label: string
     className?: string
     align?: 'left' | 'center' | 'right'
+    variantIcon?: 'no-icon' | 'left' | 'right' | 'left-right'
+    iconLeft?: ReactElement
+    iconRight?: ReactElement
 }
 
 function CustomFormInput(props: CustomFormInputProps) {
@@ -42,9 +46,19 @@ function CustomFormInput(props: CustomFormInputProps) {
                         "focus:bg-white",
                     ],
                 }}
+                startContent={
+                    (props.variantIcon === 'left' || props.variantIcon === 'left-right') && props.iconLeft && (
+                        props.iconLeft
+                    )
+                }
+                endContent={
+                    (props.variantIcon === 'right' || props.variantIcon === 'left-right') && props.iconRight && (
+                        props.iconRight
+                    )
+                }
             />
         </div>
-    );
+    )
 }
 
 export {

@@ -13,12 +13,10 @@ function DatePickerComponent(props: DatePickerComponentProps) {
         <div className={`${(props.align === "center" || !props.align) && "text-center"} ${(props.align === "left") && "text-start"} ${(props.align === "right") && "text-end"} ${props.className}`}>
             <p className="text-xl text-neutral-dGrey font-semibold mb-3">{props.label}</p>
             <DatePicker
-                label={props.label}
                 size={props.variant}
                 variant="bordered"
                 radius='full'
                 classNames={{
-                    label: "text-black/50 dark:text-white/90",
                     input: [
                         "bg-white !important",
                         "text-black/90 dark:text-white/90",
