@@ -18,3 +18,13 @@ body {
     text-wrap: balance;
   }
 }
+
+.scroll-container {
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Para ocultar a barra de rolagem no Chrome, Safari e outros navegadores baseados em WebKit */
+.scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari e Opera */
+}

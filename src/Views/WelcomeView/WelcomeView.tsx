@@ -124,7 +124,7 @@ export default function WelcomeView() {
                                 <CustomFormInput className="w-1/2" label="Telefone" type="text" variant="md" />
                             </div>
                             <div className="flex justify-center mt-10 w-full">
-                                <CustomFormTextArea className="w-full" label="Mensagem" variant="lg" type="text" />
+                                <CustomFormTextArea className="w-full" label="Mensagem" variant="lg" />
                             </div>
                         </CardBody>
                         <CardFooter className="flex justify-center">

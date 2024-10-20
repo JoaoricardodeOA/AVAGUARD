@@ -3,9 +3,9 @@ import { Input, Textarea } from "@nextui-org/input";
 interface CustomFormTextAreaProps {
     variant: 'sm' | 'md' | 'lg',
     radius?: "none" | "sm" | "md" | "lg" | "full"
-    type: string
     label: string
     className?: string
+    textAreaClassName?: string
 }
 
 function CustomFormTextArea(props: CustomFormTextAreaProps) {
@@ -38,7 +38,9 @@ function CustomFormTextArea(props: CustomFormTextAreaProps) {
                     "focus:border-gray-400",
                     "focus:bg-white",
                 ],
-            }} />
+            }}
+                className={props.className}
+            />
         </div>
     );
 }

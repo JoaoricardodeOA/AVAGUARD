@@ -1,52 +1,53 @@
-import { Input } from "@nextui-org/input";
+import { DatePicker } from "@nextui-org/react"
 
-interface CustomFormInputProps {
+interface DatePickerComponentProps {
     variant: 'sm' | 'md' | 'lg',
     radius?: "none" | "sm" | "md" | "lg" | "full"
-    type: string
     label: string
     className?: string
     align?: 'left' | 'center' | 'right'
 }
 
-function CustomFormInput(props: CustomFormInputProps) {
+function DatePickerComponent(props: DatePickerComponentProps) {
     return (
         <div className={`${(props.align === "center" || !props.align) && "text-center"} ${(props.align === "left") && "text-start"} ${(props.align === "right") && "text-end"} ${props.className}`}>
             <p className="text-xl text-neutral-dGrey font-semibold mb-3">{props.label}</p>
-            <Input
-                type={props.type}
+            <DatePicker
+                label={props.label}
                 size={props.variant}
+                variant="bordered"
                 classNames={{
-                    mainWrapper: [
-                        "bg-white",
-                        "hover:bg-white",
-                    ],
                     label: "text-black/50 dark:text-white/90",
                     input: [
-                        "bg-white",
+                        "bg-white !important",
                         "text-black/90 dark:text-white/90",
                         "placeholder:text-gray-400",
                     ],
                     innerWrapper: [
-                        "bg-transparent",
-                        "hover:bg-transparent",
+                        "bg-white !important",
+                        "hover:bg-white",
                     ],
                     inputWrapper: [
-                        "bg-white",
+                        "bg-white !important",
                         "border",
                         "border-gray-200",
                         "rounded-full",
                         "shadow-sm",
                         "hover:bg-white",
-                        "focus:border-gray-400",
                         "focus:bg-white",
                     ],
+                    selectorIcon: [
+                        "text-primary"
+                    ]
+                }}
+                style={{
+                    backgroundColor: 'white'
                 }}
             />
         </div>
-    );
+    )
 }
 
 export {
-    CustomFormInput
+    DatePickerComponent
 }

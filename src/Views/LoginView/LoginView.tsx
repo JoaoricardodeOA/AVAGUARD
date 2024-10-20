@@ -1,4 +1,5 @@
 import { ButtonPrimary } from "@/src/components/Buttons/ButtonPrimary";
+import { InputText } from "@/src/components/Inputs/InputText";
 import { Button, Input } from "@nextui-org/react"
 import { ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react"
 import { useState } from "react";
@@ -35,8 +36,22 @@ const classNames = {
 
 function LoginView() {
     const [isVisible, setIsVisible] = useState(false);
+    const [email, setEmail] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
 
     const toggleVisibility = () => setIsVisible(!isVisible);
+
+    function handleOnChangeEmail(e: React.ChangeEvent<HTMLInputElement>) {
+        e.preventDefault()
+
+        setEmail(e.target.value)
+    }
+
+    function handleOnChangePassword(e: React.ChangeEvent<HTMLInputElement>) {
+        e.preventDefault()
+
+        setPassword(e.target.value)
+    }
 
     return (
         <div className="h-screen w-full flex justify-between">
@@ -44,26 +59,27 @@ function LoginView() {
                 <div className="w-2/4 text-center">
                     <h1 className="text-primary text-5xl mb-28">Login</h1>
                     <div className="mt-10">
-                        <Input
-                            type={"text"}
-                            classNames={classNames}
-                            startContent={
+                        <InputText
+                            type="text"
+                            variantIcon="left"
+                            iconLeft={
                                 <div className="me-3">
                                     <User className="text-primary" />
                                 </div>
                             }
                             placeholder="Informe o seu E-mail"
+                            value={email}
+                            onChange={handleOnChangeEmail}
                         />
-                        <Input
+                        <InputText
                             type={isVisible ? "text" : "password"}
-                            classNames={classNames}
-                            startContent={
+                            iconLeft={
                                 <div className="me-3">
                                     <Lock className="text-primary" />
                                 </div>
                             }
-                            endContent={
-                                <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
+                            iconRight={
+                                <button className="inline-flex focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
                                     {isVisible ? (
                                         <div className="pe-3">
                                             <EyeOff className="text-2xl pointer-events-none text-primary" />
@@ -75,8 +91,11 @@ function LoginView() {
                                     )}
                                 </button>
                             }
-                            placeholder="Informe o seu E-mail"
+                            placeholder="Informe a sua Senha"
+                            variantIcon="left-right"
                             className="mt-5"
+                            onChange={handleOnChangePassword}
+                            value={password}
                         />
                     </div>
                     <p className="text-end mt-5 text-md text-tint-3 font-semibold">Esqueceu a Senha?</p>
