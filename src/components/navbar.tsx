@@ -15,8 +15,14 @@ import clsx from "clsx"
 import { ArrowBigRight, ArrowRight } from "lucide-react"
 import { ButtonPrimary } from "./Buttons/ButtonPrimary"
 import { siteConfig } from '../config/site'
+import { useRouter } from "next/router"
 
 export const Navbar = () => {
+  const router = useRouter();
+
+  const handleClick = () => {
+      router.push('/login'); // Replace with the desired route
+  };
   return (
     <NextUINavbar maxWidth="xl" position="sticky" >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -49,7 +55,8 @@ export const Navbar = () => {
             </NavbarItem>
           ))}
           <NavbarItem key='/test' className="">
-            <ButtonPrimary variantIcon="right" variant="md" icon={<ArrowRight size={16} />}>
+            <ButtonPrimary variantIcon="right" variant="md" icon={<ArrowRight size={16} />} 
+           onClick={handleClick}>
               Entrar
             </ButtonPrimary>
           </NavbarItem>
