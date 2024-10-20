@@ -2,8 +2,16 @@ import { ButtonPrimary } from "@/src/components/Buttons/ButtonPrimary"
 import { InputText } from "@/src/components/Inputs/InputText"
 import { ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/router"
 
 function LoginView() {
+    //routing button
+    const router = useRouter();
+
+    const handleClick = () => {
+        router.push('/home'); // Replace with the desired route
+    };
+
     const [isVisible, setIsVisible] = useState(false)
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
@@ -68,7 +76,7 @@ function LoginView() {
                         />
                     </div>
                     <p className="text-end mt-5 text-md text-tint-3 font-semibold">Esqueceu a Senha?</p>
-                    <ButtonPrimary className="w-full mt-5 text-lg font-light" variant="lg" variantIcon="right" icon={<ArrowRight />}>
+                    <ButtonPrimary className="w-full mt-5 text-lg font-light" variant="lg" variantIcon="right" icon={<ArrowRight />} onClick={handleClick}>
                         Entrar
                     </ButtonPrimary>
                 </div>
