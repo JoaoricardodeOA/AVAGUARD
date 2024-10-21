@@ -4,6 +4,7 @@ import { DatePickerComponent } from "@/src/components/DatePickers/DatePickerComp
 import { CustomFormInput } from "@/src/components/Inputs/CustomFormInput"
 import { CustomFormTextArea } from "@/src/components/Inputs/CustomFormTextArea"
 import { RegisterIncidentModal } from '@/src/components/Modals/RegisterIncidentModal'
+import { RegisterWitnessModal } from '@/src/components/Modals/RegisterWitnessModal'
 import { SendFileModal } from '@/src/components/Modals/SendFileModal'
 import { Navbar } from "@/src/components/navbar"
 import { SelectComponent } from "@/src/components/Selects/SelectComponent"
@@ -14,6 +15,7 @@ import { useState } from 'react'
 function RegisterVictimsView() {
     const modalRegisterIncident = useDisclosure()
     const modalSendFile = useDisclosure()
+    const modalRegisterWitness = useDisclosure()
     const [companys, setCompanys] = useState<ListItemsType[]>([
         {
             ID: 'kneion',
@@ -57,7 +59,7 @@ function RegisterVictimsView() {
                 <div className="w-full flex justify-between items-center">
                     <h1 className="text-2xl text-shade-1 font-medium">Cadastro de Vítimas</h1>
                     <div className="flex items-center gap-3">
-                        <BurronPrimaryOutline variant="sm" variantIcon="no-icon">
+                        <BurronPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalRegisterWitness.onOpen}>
                             Cadastrar Testemunhas
                         </BurronPrimaryOutline>
                         <BurronPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalSendFile.onOpen}>
@@ -100,6 +102,7 @@ function RegisterVictimsView() {
                 </div>
             </div>
 
+            <RegisterWitnessModal isOpen={modalRegisterWitness.isOpen} onOpenChange={modalRegisterWitness.onOpenChange} />
             <RegisterIncidentModal isOpen={modalRegisterIncident.isOpen} onOpenChange={modalRegisterIncident.onOpenChange} />
             <SendFileModal isOpen={modalSendFile.isOpen} onOpenChange={modalSendFile.onOpenChange} />
         </>

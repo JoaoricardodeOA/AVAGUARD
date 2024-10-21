@@ -39,7 +39,7 @@ function CustomFormTextArea(props: CustomFormTextAreaProps) {
                     "focus:bg-white",
                 ],
             }}
-                className={props.className}
+                className={props.textAreaClassName}
             />
         </div>
     )

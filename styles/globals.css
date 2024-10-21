@@ -21,10 +21,25 @@ body {
 
 .scroll-container {
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Para ocultar a barra de rolagem no Chrome, Safari e outros navegadores baseados em WebKit */
 .scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari e Opera */
+  display: none;
+  /* Chrome, Safari e Opera */
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8b94f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
