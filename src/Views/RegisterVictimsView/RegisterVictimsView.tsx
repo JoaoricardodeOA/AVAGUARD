@@ -1,4 +1,4 @@
-import { BurronPrimaryOutline } from "@/src/components/Buttons/BurronPrimaryOutline"
+import { ButtomPrimaryOutline } from '@/src/components/Buttons/BurronPrimaryOutline'
 import { ButtonPrimary } from "@/src/components/Buttons/ButtonPrimary"
 import { DatePickerComponent } from "@/src/components/DatePickers/DatePickerComponent"
 import { CustomFormInput } from "@/src/components/Inputs/CustomFormInput"
@@ -59,15 +59,15 @@ function RegisterVictimsView() {
                 <div className="w-full flex justify-between items-center">
                     <h1 className="text-2xl text-shade-1 font-medium">Cadastro de Vítimas</h1>
                     <div className="flex items-center gap-3">
-                        <BurronPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalRegisterWitness.onOpen}>
+                        <ButtomPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalRegisterWitness.onOpen}>
                             Cadastrar Testemunhas
-                        </BurronPrimaryOutline>
-                        <BurronPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalSendFile.onOpen}>
+                        </ButtomPrimaryOutline>
+                        <ButtomPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalSendFile.onOpen}>
                             Enviar Arquivos
-                        </BurronPrimaryOutline>
-                        <BurronPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalRegisterIncident.onOpen}>
+                        </ButtomPrimaryOutline>
+                        <ButtomPrimaryOutline variant="sm" variantIcon="no-icon" onPress={modalRegisterIncident.onOpen}>
                             Registrar Incidente
-                        </BurronPrimaryOutline>
+                        </ButtomPrimaryOutline>
                     </div>
                 </div>
                 <div className="mt-10">

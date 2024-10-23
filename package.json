@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.1.0",
     "@next/font": "^14.2.15",
     "@nextui-org/react": "^2.4.8",
     "framer-motion": "^11.11.9",

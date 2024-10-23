@@ -1,17 +1,18 @@
 import "@/styles/globals.css"
 import type { AppProps } from "next/app"
 import { NextUIProvider } from "@nextui-org/react"
-import { Inter } from 'next/font/google'
+import { Roboto } from 'next/font/google'
+import '@fontsource/roboto'
 
-const inter = Inter({
+const roboto = Roboto({
   subsets: ['latin'],
-  variable: '--font-inter',
+  weight: ["100", "300", "400", "500", "700"]
 })
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <NextUIProvider>
-      <div className={inter.variable}>
+      <div className={roboto.className}>
         <Component {...pageProps} />
       </div>
     </NextUIProvider>

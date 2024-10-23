@@ -13,8 +13,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)"],
-        mono: ["var(--font-mono)"],
-        inter: ['var(--font-inter)', 'sans-serif']
+        mono: ["var(--font-mono)"]
       },
       colors: {
         "neutral-black": '#263238',
