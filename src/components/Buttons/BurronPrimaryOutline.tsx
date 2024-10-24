@@ -1,11 +1,11 @@
 import { Button } from "@nextui-org/button"
-import { ReactElement } from "react"
+import { ReactElement, ReactNode } from "react"
 
 interface ButtomPrimaryOutlineProps {
     variant: 'sm' | 'md' | 'lg',
     variantIcon: 'no-icon' | 'left' | 'right',
     icon?: ReactElement
-    children: string
+    children: ReactNode
     className?: string
     onPress?: (e: any) => void
 }
