@@ -38,3 +38,66 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Conceptual Schema DB
+
+```mermaid
+erDiagram
+    VICTIM {
+        int id_victim pk
+        string first_name
+        string last_name
+        int age
+        string phone
+        string rg
+        string cpf
+        string gender
+        string address
+        string email
+        string company
+        string position
+        date Hire_date
+        string event
+    }
+
+    WITNESS {
+        int id_victim fk
+        string first_name
+        string last_name
+        string rg
+        string cpf
+        string phone
+        string position
+        string address
+        string colaborate
+        string description
+    }
+
+    ATTACHMENT {
+        int id_victim fk
+        string description
+        string document_type
+        file file
+    }
+
+    PROOF {
+        int id_victim fk
+        date date
+        file file
+        string description
+    }
+
+    USER {
+        string email
+        string first_name
+        string last_name
+        string password
+        string role
+        file photo
+        datetime last_access
+    }
+
+    VICTIM ||--|o WITNESS : "may have"
+    VICTIM ||--|o ATTACHMENT : "may have"
+    VICTIM ||--|o PROOF : "may have"
+    USER ||--o{ VICTIM : "records"
