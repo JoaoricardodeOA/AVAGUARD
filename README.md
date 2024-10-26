@@ -97,7 +97,7 @@ erDiagram
         datetime last_access
     }
 
-    VICTIM ||--|o WITNESS : "may have"
-    VICTIM ||--|o ATTACHMENT : "may have"
-    VICTIM ||--|o PROOF : "may have"
+    VICTIM ||--o{ WITNESS : "may have"
+    VICTIM ||--o{ ATTACHMENT : "may have"
+    VICTIM ||--o{ PROOF : "may have"
     USER ||--o{ VICTIM : "records"
