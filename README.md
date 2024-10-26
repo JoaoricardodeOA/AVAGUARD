@@ -49,7 +49,6 @@ erDiagram
         string last_name
         int age
         string phone
-        string rg
         string cpf
         string gender
         string address
@@ -64,12 +63,10 @@ erDiagram
         int id_victim fk
         string first_name
         string last_name
-        string rg
         string cpf
         string phone
         string position
         string address
-        string colaborate
         string description
     }
 
