@@ -7,6 +7,9 @@ import { RegisterIncidentModal } from '@/src/components/Modals/RegisterIncidentM
 import { RegisterWitnessModal } from '@/src/components/Modals/RegisterWitnessModal'
 import { SendFileModal } from '@/src/components/Modals/SendFileModal'
 import { Navbar } from "@/src/components/navbar"
+import { CompanyPositionsSelectComponent } from '@/src/components/Selects/CompanyPositionsSelectComponent'
+import { CompanysSelectComponent } from '@/src/components/Selects/CompanysSelectComponent'
+import { GendersSelectComponent } from '@/src/components/Selects/GendersSelectComponent'
 import { SelectComponent } from "@/src/components/Selects/SelectComponent"
 import { ListItemsType } from '@/src/types/select'
 import { useDisclosure } from '@nextui-org/react'
@@ -16,40 +19,21 @@ function RegisterVictimsView() {
     const modalSendFile = useDisclosure()
     const modalRegisterIncident = useDisclosure()
     const modalRegisterWitness = useDisclosure()
-    const [companys, setCompanys] = useState<ListItemsType[]>([
-        {
-            ID: 'kneion',
-            label: 'Uninassau'
-        },
-        {
-            ID: 'qcklqncjq',
-            label: 'Uninabuco'
-        },
-        {
-            ID: 'kneion',
-            label: 'Unimed'
-        },
-    ])
-    const [genders, setGenders] = useState<ListItemsType[]>([
-        {
-            ID: 'kneion',
-            label: 'Masculino'
-        },
-        {
-            ID: 'qcklqncjq',
-            label: 'Feminino'
-        }
-    ])
-    const [positions, setPositions] = useState<ListItemsType[]>([
-        {
-            ID: 'kneion',
-            label: 'Gerente'
-        },
-        {
-            ID: 'qcklqncjq',
-            label: 'Bancada'
-        }
-    ])
+    const [companyId, setCompanyId] = useState<string | null>(null)
+    const [genderId, setGenderId] = useState<string | null>(null)
+    const [companyPositionId, setCompanyPositionId] = useState<string | null>(null)
+
+    function handleChooseCompanyValue(value: any) {
+        setCompanyId(value)
+    }
+
+    function handleChooseGenderValue(value: any) {
+        setGenderId(value)
+    }
+
+    function handleChooseCompanyPositionValue(value: any) {
+        setCompanyPositionId(value)
+    }
 
     return (
         <>
@@ -82,13 +66,13 @@ function RegisterVictimsView() {
                         <CustomFormInput align="left" className="w-1/3" label="CPF" type="text" variant="md" />
                     </div>
                     <div className="flex gap-3 items-center w-full mt-10">
-                        <SelectComponent itens={genders} align="left" className="w-1/3" label="Selecione o Gênero" variant="sm" />
+                        <GendersSelectComponent align="left" className="w-1/3" label="Selecione o Gênero" variant="sm" handleChooseValue={handleChooseGenderValue} />
                         <CustomFormInput align="left" className="w-1/3" label="Endereço" type="text" variant="md" />
                         <CustomFormInput align="left" className="w-1/3" label="E-mail" type="text" variant="md" />
                     </div>
                     <div className="flex gap-3 items-center w-full mt-10">
-                        <SelectComponent itens={companys} align="left" className="w-1/3" label="Empresa" variant="sm" />
-                        <SelectComponent itens={positions} align="left" className="w-1/3" label="Cargo" variant="sm" />
+                        <CompanysSelectComponent align="left" className="w-1/3" label="Empresa" variant="sm" handleChooseValue={handleChooseCompanyValue} />
+                        <CompanyPositionsSelectComponent align="left" className="w-1/3" label="Cargo" variant="sm" handleChooseValue={handleChooseCompanyPositionValue} companyId={companyId} />
                         <DatePickerComponent label="Data de Admissão" variant="lg" className="w-1/3" align="left" />
                     </div>
                     <div className="flex gap-3 items-center justify-center w-full mt-10">

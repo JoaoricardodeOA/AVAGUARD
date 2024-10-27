@@ -8,6 +8,8 @@ interface SelectComponentProps {
     className?: string
     align?: 'left' | 'center' | 'right'
     itens: ListItemsType[]
+    onChange?: (e: any) => void
+    disabled?: boolean
 }
 
 function SelectComponent(props: SelectComponentProps) {
@@ -42,6 +44,8 @@ function SelectComponent(props: SelectComponentProps) {
                         "text-primary"
                     ]
                 }}
+                onChange={props.onChange}
+                disabled={props.disabled || false}
             >
                 {props.itens.map((item) => (
                     <SelectItem key={item.ID}>
