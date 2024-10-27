@@ -13,8 +13,8 @@ import { useDisclosure } from '@nextui-org/react'
 import { useState } from 'react'
 
 function RegisterVictimsView() {
-    const modalRegisterIncident = useDisclosure()
     const modalSendFile = useDisclosure()
+    const modalRegisterIncident = useDisclosure()
     const modalRegisterWitness = useDisclosure()
     const [companys, setCompanys] = useState<ListItemsType[]>([
         {

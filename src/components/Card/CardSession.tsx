@@ -1,10 +1,10 @@
 import { useRef } from "react"
 import { CardComponent } from "./CardComponent"
-import { VictmiType } from "@/src/types/victmis"
+import { VictimsWithInformationType } from "@/src/Views/HomeView/HomeViewType"
 
 interface CardSessionProps {
     clientName: string
-    victimis: VictmiType[]
+    victimis: VictimsWithInformationType[]
 }
 
 function CardSession(props: CardSessionProps) {
@@ -53,7 +53,7 @@ function CardSession(props: CardSessionProps) {
                     <div className="mt-10 pb-5">
                         <h1 className="text-2xl text-shade-1 font-semibold uppercase">{props.clientName}</h1>
                         <div
-                            className="mt-5 scroll-container flex overflow-x-auto cursor-grab gap-5 shadow-none pb-5"
+                            className="mt-5 scroll-container flex overflow-x-auto gap-5 shadow-none pb-5"
                             ref={scrollRef}
                             onMouseDown={mouseDownHandler}
                             onMouseLeave={mouseLeaveHandler}
@@ -62,7 +62,7 @@ function CardSession(props: CardSessionProps) {
                         >
                             {
                                 props.victimis.map((victim) => (
-                                    <CardComponent imgURL={victim.imgURL} description={victim.description} name={victim.name} status={victim.status as "warning"} />
+                                    <CardComponent imgURL={victim.avatar} description={victim.eventDescription} name={victim.victimName} />
                                 ))
                             }
                         </div>
