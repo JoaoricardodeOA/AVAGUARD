@@ -1,4 +1,5 @@
 import { Input, Textarea } from "@nextui-org/input"
+import { ChangeEvent } from "react"
 
 interface CustomFormTextAreaProps {
     variant: 'sm' | 'md' | 'lg',
@@ -6,6 +7,8 @@ interface CustomFormTextAreaProps {
     label: string
     className?: string
     textAreaClassName?: string
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void
+    value: any
 }
 
 function CustomFormTextArea(props: CustomFormTextAreaProps) {
@@ -39,6 +42,8 @@ function CustomFormTextArea(props: CustomFormTextAreaProps) {
                     "focus:bg-white",
                 ],
             }}
+                value={props.value}
+                onChange={props.onChange}
                 className={props.textAreaClassName}
             />
         </div>

@@ -11,6 +11,7 @@ import { CompanyPositionsSelectComponent } from '@/src/components/Selects/Compan
 import { CompanysSelectComponent } from '@/src/components/Selects/CompanysSelectComponent'
 import { GendersSelectComponent } from '@/src/components/Selects/GendersSelectComponent'
 import { SelectComponent } from "@/src/components/Selects/SelectComponent"
+import { avaguardService } from '@/src/service/avaguardService'
 import { ListItemsType } from '@/src/types/select'
 import { useDisclosure } from '@nextui-org/react'
 import { useState } from 'react'
@@ -22,6 +23,16 @@ function RegisterVictimsView() {
     const [companyId, setCompanyId] = useState<string | null>(null)
     const [genderId, setGenderId] = useState<string | null>(null)
     const [companyPositionId, setCompanyPositionId] = useState<string | null>(null)
+    const [firstName, setFirstName] = useState<string>('')
+    const [lastName, setLastName] = useState<string>('')
+    const [age, setAge] = useState<number>()
+    const [phone, setPhone] = useState<string>('')
+    const [cpf, setCpf] = useState<string>('')
+    const [address, setAddress] = useState<string>('')
+    const [email, setEmail] = useState<string>('')
+    const [eventDescription, setEventDescription] = useState<string>('')
+
+    const [preview, setPreview] = useState<string | null>(null)
 
     function handleChooseCompanyValue(value: any) {
         setCompanyId(value)
@@ -33,6 +44,36 @@ function RegisterVictimsView() {
 
     function handleChooseCompanyPositionValue(value: any) {
         setCompanyPositionId(value)
+    }
+
+    const handleFileChange = (event: any) => {
+        const file = event.target.files[0]
+        if (file) {
+            const previewUrl = URL.createObjectURL(file)
+            setPreview(previewUrl)
+
+            event.target.addEventListener('change', () => URL.revokeObjectURL(previewUrl), { once: true })
+        } else {
+            setPreview(null)
+        }
+    }
+
+    async function handleOnClickCreateVictim(e: React.MouseEvent<HTMLButtonElement>) {
+        e.preventDefault()
+
+        await avaguardService.post('/createVictim', {
+            companyId,
+            genderId,
+            companyPositionId,
+            firstName,
+            lastName,
+            age,
+            phone,
+            cpf,
+            address,
+            email,
+            eventDescription
+        })
     }
 
     return (
@@ -56,19 +97,47 @@ function RegisterVictimsView() {
                 </div>
                 <div className="mt-10">
                     <div className="flex gap-3 w-full">
-                        <CustomFormInput align="left" className="w-1/3" label="Nome" type="text" variant="md" />
-                        <CustomFormInput align="left" className="w-1/3" label="Sobrenome" type="text" variant="md" />
-                        <CustomFormInput align="left" className="w-1/3" label="Idade" type="text" variant="md" />
+                        <div className="w-1/3 flex items-center gap-3">
+                            {
+                                preview && (
+                                    <div className="shrink-0">
+                                        <img
+                                            id="preview_img"
+                                            className="h-16 w-16 object-cover rounded-full"
+                                            src={preview}
+                                            alt="Current profile photo"
+                                        />
+                                    </div>
+                                )
+                            }
+                            <label className="block">
+                                <span className="sr-only">Choose profile photo</span>
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    className={`
+                                        block w-full text-sm text-slate-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-violet-50 file:text-primary
+                                        hover:file:bg-violet-100
+                                    `}
+                                />
+                            </label>
+                        </div>
+                        <CustomFormInput align="left" className="w-1/3" label="Nome" type="text" variant="md" onChange={e => setFirstName(e.target.value)} value={firstName} />
+                        <CustomFormInput align="left" className="w-1/3" label="Sobrenome" type="text" variant="md" onChange={e => setLastName(e.target.value)} value={lastName} />
                     </div>
                     <div className="flex gap-3 w-full mt-10">
-                        <CustomFormInput align="left" className="w-1/3" label="Telefone" type="text" variant="md" />
-                        <CustomFormInput align="left" className="w-1/3" label="RG" type="text" variant="md" />
-                        <CustomFormInput align="left" className="w-1/3" label="CPF" type="text" variant="md" />
+                        <CustomFormInput align="left" className="w-1/3" label="Idade" type="number" variant="md" onChange={e => setAge(parseInt(e.target.value))} value={age} />
+                        <CustomFormInput align="left" className="w-1/3" label="Telefone" type="text" variant="md" onChange={e => setPhone(e.target.value)} value={phone} />
+                        <CustomFormInput align="left" className="w-1/3" label="CPF" type="text" variant="md" onChange={e => setCpf(e.target.value)} value={cpf} />
                     </div>
                     <div className="flex gap-3 items-center w-full mt-10">
                         <GendersSelectComponent align="left" className="w-1/3" label="Selecione o Gênero" variant="sm" handleChooseValue={handleChooseGenderValue} />
-                        <CustomFormInput align="left" className="w-1/3" label="Endereço" type="text" variant="md" />
-                        <CustomFormInput align="left" className="w-1/3" label="E-mail" type="text" variant="md" />
+                        <CustomFormInput align="left" className="w-1/3" label="Endereço" type="text" variant="md" onChange={e => setAddress(e.target.value)} value={address} />
+                        <CustomFormInput align="left" className="w-1/3" label="E-mail" type="text" variant="md" onChange={e => setEmail(e.target.value)} value={email} />
                     </div>
                     <div className="flex gap-3 items-center w-full mt-10">
                         <CompanysSelectComponent align="left" className="w-1/3" label="Empresa" variant="sm" handleChooseValue={handleChooseCompanyValue} />
@@ -76,11 +145,11 @@ function RegisterVictimsView() {
                         <DatePickerComponent label="Data de Admissão" variant="lg" className="w-1/3" align="left" />
                     </div>
                     <div className="flex gap-3 items-center justify-center w-full mt-10">
-                        <CustomFormTextArea className="w-full" label="Descrição do Ocorrido" variant="sm" />
+                        <CustomFormTextArea className="w-full" label="Descrição do Ocorrido" variant="sm" onChange={e => setEventDescription(e.target.value)} value={eventDescription} />
                     </div>
                 </div>
                 <div className="mt-10 mb-10">
-                    <ButtonPrimary className="w-[200px] mt-5 text-lg font-light" variant="lg" variantIcon="no-icon">
+                    <ButtonPrimary className="w-[200px] mt-5 text-lg font-light" variant="lg" variantIcon="no-icon" onClick={handleOnClickCreateVictim}>
                         Cadastrar
                     </ButtonPrimary>
                 </div>
