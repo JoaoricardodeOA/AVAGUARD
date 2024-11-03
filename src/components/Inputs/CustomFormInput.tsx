@@ -1,7 +1,7 @@
 import { Input } from "@nextui-org/input"
-import { ChangeEvent, ReactElement } from 'react'
+import { ChangeEvent, InputHTMLAttributes, ReactElement } from 'react'
 
-interface CustomFormInputProps {
+interface CustomFormInputProps extends InputHTMLAttributes<HTMLInputElement> {
     variant: 'sm' | 'md' | 'lg',
     radius?: "none" | "sm" | "md" | "lg" | "full"
     type: string
@@ -20,6 +20,7 @@ function CustomFormInput(props: CustomFormInputProps) {
         <div className={`${(props.align === "center" || !props.align) && "text-center"} ${(props.align === "left") && "text-start"} ${(props.align === "right") && "text-end"} ${props.className}`}>
             <p className="text-xl text-neutral-dGrey font-semibold mb-3">{props.label}</p>
             <Input
+                maxLength={props.maxLength}
                 type={props.type}
                 size={props.variant}
                 classNames={{

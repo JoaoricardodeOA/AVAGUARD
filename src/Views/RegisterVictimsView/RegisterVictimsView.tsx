@@ -10,10 +10,8 @@ import { Navbar } from "@/src/components/navbar"
 import { CompanyPositionsSelectComponent } from '@/src/components/Selects/CompanyPositionsSelectComponent'
 import { CompanysSelectComponent } from '@/src/components/Selects/CompanysSelectComponent'
 import { GendersSelectComponent } from '@/src/components/Selects/GendersSelectComponent'
-import { SelectComponent } from "@/src/components/Selects/SelectComponent"
 import { avaguardService } from '@/src/service/avaguardService'
-import { ListItemsType } from '@/src/types/select'
-import { useDisclosure } from '@nextui-org/react'
+import { DateValue, useDisclosure } from '@nextui-org/react'
 import { useState } from 'react'
 
 function RegisterVictimsView() {
@@ -31,19 +29,20 @@ function RegisterVictimsView() {
     const [address, setAddress] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [eventDescription, setEventDescription] = useState<string>('')
+    const [admissionDate, setAdmissionDate] = useState<DateValue | null>(null)
 
     const [preview, setPreview] = useState<string | null>(null)
 
     function handleChooseCompanyValue(value: any) {
-        setCompanyId(value)
+        setCompanyId(value || null)
     }
 
     function handleChooseGenderValue(value: any) {
-        setGenderId(value)
+        setGenderId(value || null)
     }
 
     function handleChooseCompanyPositionValue(value: any) {
-        setCompanyPositionId(value)
+        setCompanyPositionId(value || null)
     }
 
     const handleFileChange = (event: any) => {
@@ -56,6 +55,14 @@ function RegisterVictimsView() {
         } else {
             setPreview(null)
         }
+    }
+
+    function handleOnChangeAdmissionDate(value: DateValue) {
+        setAdmissionDate(value)
+    }
+
+    function validate(): string | null {
+        return null
     }
 
     async function handleOnClickCreateVictim(e: React.MouseEvent<HTMLButtonElement>) {
@@ -74,6 +81,22 @@ function RegisterVictimsView() {
             email,
             eventDescription
         })
+    }
+
+    function formatCPF(value: string) {
+        return value
+            .replace(/\D/g, "")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+    }
+
+    function maskPhone(value: string) {
+        return value
+            .replace(/\D/g, '')
+            .replace(/^(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{5})(\d)/, '$1-$2')
+            .replace(/(-\d{4})\d+?$/, '$1')
     }
 
     return (
@@ -131,8 +154,8 @@ function RegisterVictimsView() {
                     </div>
                     <div className="flex gap-3 w-full mt-10">
                         <CustomFormInput align="left" className="w-1/3" label="Idade" type="number" variant="md" onChange={e => setAge(parseInt(e.target.value))} value={age} />
-                        <CustomFormInput align="left" className="w-1/3" label="Telefone" type="text" variant="md" onChange={e => setPhone(e.target.value)} value={phone} />
-                        <CustomFormInput align="left" className="w-1/3" label="CPF" type="text" variant="md" onChange={e => setCpf(e.target.value)} value={cpf} />
+                        <CustomFormInput align="left" className="w-1/3" label="Telefone" type="text" variant="md" onChange={e => setPhone(e.target.value)} value={maskPhone(phone)} />
+                        <CustomFormInput maxLength={14} align="left" className="w-1/3" label="CPF" type="text" variant="md" onChange={e => setCpf(e.target.value)} value={formatCPF(cpf)} />
                     </div>
                     <div className="flex gap-3 items-center w-full mt-10">
                         <GendersSelectComponent align="left" className="w-1/3" label="Selecione o Gênero" variant="sm" handleChooseValue={handleChooseGenderValue} />
@@ -142,7 +165,7 @@ function RegisterVictimsView() {
                     <div className="flex gap-3 items-center w-full mt-10">
                         <CompanysSelectComponent align="left" className="w-1/3" label="Empresa" variant="sm" handleChooseValue={handleChooseCompanyValue} />
                         <CompanyPositionsSelectComponent align="left" className="w-1/3" label="Cargo" variant="sm" handleChooseValue={handleChooseCompanyPositionValue} companyId={companyId} />
-                        <DatePickerComponent label="Data de Admissão" variant="lg" className="w-1/3" align="left" />
+                        <DatePickerComponent label="Data de Admissão" variant="lg" className="w-1/3" align="left" value={admissionDate} handleOnChangeDate={handleOnChangeAdmissionDate} />
                     </div>
                     <div className="flex gap-3 items-center justify-center w-full mt-10">
                         <CustomFormTextArea className="w-full" label="Descrição do Ocorrido" variant="sm" onChange={e => setEventDescription(e.target.value)} value={eventDescription} />
