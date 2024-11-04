@@ -1,28 +1,104 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@nextui-org/react"
 import { CustomFormInput } from '../Inputs/CustomFormInput'
-import { Upload } from 'lucide-react'
 import { ButtonPrimary } from '../Buttons/ButtonPrimary'
-import { SelectComponent } from '../Selects/SelectComponent'
 import { useState } from 'react'
-import { ListItemsType } from '@/src/types/select'
 import { CustomFormTextArea } from '../Inputs/CustomFormTextArea'
+import { WitnessRequestType } from '@/src/types/witness'
+import { NotificationAction } from '../Notifications/Notification'
 
 interface RegisterWitnessModalProps {
   isOpen: boolean
   onOpenChange: () => void
+  handleCreateWitness: (witness: WitnessRequestType) => Promise<void>
 }
 
 function RegisterWitnessModal(props: RegisterWitnessModalProps) {
-  const [positions, setPositions] = useState<ListItemsType[]>([
-    {
-      ID: 'kneion',
-      label: 'Gerente'
-    },
-    {
-      ID: 'qcklqncjq',
-      label: 'Bancada'
+  const [firstName, setFirstName] = useState<string>('')
+  const [lastName, setLastName] = useState<string>('')
+  const [phone, setPhone] = useState<string>('')
+  const [cpf, setCpf] = useState<string>('')
+  const [address, setAddress] = useState<string>('')
+  const [eventDescription, setEventDescription] = useState<string>('')
+
+  function validate(witness: WitnessRequestType): string | null {
+    if (!witness.firstName || witness.firstName.trim().length === 0) {
+      return 'O nome não pode ser vazio.'
     }
-  ])
+
+    if (!witness.lastName || witness.lastName.trim().length === 0) {
+      return 'O sobrenome não pode ser vazio.'
+    }
+
+    if (!witness.address || witness.address.trim().length === 0) {
+      return 'O endereço não pode ser vazio.'
+    }
+
+    if (!witness.cpf || witness.cpf.trim().length === 0) {
+      return 'O CPF não pode ser vazio.'
+    }
+
+    if (!witness.phone || witness.phone.trim().length === 0) {
+      return 'O telefone não pode ser vazio.'
+    }
+
+    return null
+  }
+
+  async function handleOnClickCreateVictim(e: React.MouseEvent<HTMLButtonElement>, onClose: () => void) {
+    e.preventDefault()
+
+    const witness: WitnessRequestType = {
+      firstName,
+      lastName,
+      phone: removeMasks(phone),
+      cpf: removeMasks(cpf),
+      address,
+      eventDescription
+    }
+
+    const error = validate(witness)
+
+    if (!error) {
+      await props.handleCreateWitness(witness)
+
+      NotificationAction.notificationSuccess("Testemunha adicionada com sucesso!")
+
+      handleOnClose(onClose)
+    } else {
+      NotificationAction.notificationWarning(error)
+    }
+  }
+
+  function removeMasks(value: string): string {
+    return value.replace(/\D/g, "")
+  }
+
+  function formatCPF(value: string) {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+  }
+
+  function maskPhone(value: string) {
+    return value
+      .replace(/\D/g, '')
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2')
+      .replace(/(-\d{4})\d+?$/, '$1')
+  }
+
+  function handleOnClose(onClose: () => void) {
+    setFirstName('')
+    setLastName('')
+    setPhone('')
+    setCpf('')
+    setAddress('')
+    setEventDescription('')
+
+    onClose()
+  }
 
   return (
     <>
@@ -48,30 +124,25 @@ function RegisterWitnessModal(props: RegisterWitnessModalProps) {
               <ModalHeader className="flex flex-col gap-1">Cadastrar Testemunhas</ModalHeader>
               <ModalBody>
                 <div className="flex gap-3 w-full">
-                  <CustomFormInput align="left" className="w-1/2" label="Nome" type="text" variant="md" />
-                  <CustomFormInput align="left" className="w-1/2" label="Sobrenome" type="text" variant="md" />
+                  <CustomFormInput value={firstName} onChange={(e) => setFirstName(e.target.value)} align="left" className="w-1/2" label="Nome" type="text" variant="md" />
+                  <CustomFormInput value={lastName} onChange={(e) => setLastName(e.target.value)} align="left" className="w-1/2" label="Sobrenome" type="text" variant="md" />
                 </div>
                 <div className="flex gap-3 w-full mt-5">
-                  <CustomFormInput align="left" className="w-1/2" label="RG" type="text" variant="md" />
-                  <CustomFormInput align="left" className="w-1/2" label="CPF" type="text" variant="md" />
+                  <CustomFormInput value={formatCPF(cpf)} onChange={(e) => setCpf(e.target.value)} align="left" className="w-1/2" label="CPF" type="text" variant="md" maxLength={14} />
+                  <CustomFormInput value={maskPhone(phone)} onChange={(e) => setPhone(e.target.value)} align="left" className="w-1/2" label="Telefone" type="text" variant="md" />
                 </div>
                 <div className="flex gap-3 items-center w-full mt-5">
-                  <CustomFormInput align="left" className="w-1/2" label="Telefone" type="text" variant="md" />
-                  <CustomFormInput align="left" className="w-1/2" label="Endereço" type="text" variant="md" />
-                </div>
-                <div className="flex gap-3 items-center w-full mt-5">
-                  <SelectComponent itens={positions} align="left" className="w-1/2" label="Selecione o Cargo" variant="sm" />
-                  <SelectComponent itens={[{ ID: "sim", label: "Sim" }, { ID: "nao", label: "Nâo" }]} align="left" className="w-1/2" label="Disponibilidade para Colaborar?" variant="sm" />
+                  <CustomFormInput value={address} onChange={(e) => setAddress(e.target.value)} align="left" className="w-full" label="Endereço" type="text" variant="md" />
                 </div>
                 <div className="flex gap-3 items-center justify-center w-full mt-10">
-                  <CustomFormTextArea className="w-full" label="Descrição do Ocorrido de Acordo com a Testemunha" variant="lg" />
+                  <CustomFormTextArea value={eventDescription} onChange={(e) => setEventDescription(e.target.value)} className="w-full" label="Descrição do Ocorrido de Acordo com a Testemunha" variant="lg" />
                 </div>
               </ModalBody>
               <ModalFooter className='mt-5'>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <ButtonPrimary variant='md' variantIcon='no-icon' onPress={onClose}>
+                <ButtonPrimary variant='md' variantIcon='no-icon' onClick={(e) => handleOnClickCreateVictim(e, onClose)}>
                   Enviar
                 </ButtonPrimary>
               </ModalFooter>

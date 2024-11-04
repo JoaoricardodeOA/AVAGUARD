@@ -11,6 +11,7 @@ import { CompanyPositionsSelectComponent } from '@/src/components/Selects/Compan
 import { CompanysSelectComponent } from '@/src/components/Selects/CompanysSelectComponent'
 import { GendersSelectComponent } from '@/src/components/Selects/GendersSelectComponent'
 import { avaguardService } from '@/src/service/avaguardService'
+import { WitnessRequestType } from '@/src/types/witness'
 import { DateValue, useDisclosure } from '@nextui-org/react'
 import { useState } from 'react'
 
@@ -30,8 +31,8 @@ function RegisterVictimsView() {
     const [email, setEmail] = useState<string>('')
     const [eventDescription, setEventDescription] = useState<string>('')
     const [admissionDate, setAdmissionDate] = useState<DateValue | null>(null)
-
     const [preview, setPreview] = useState<string | null>(null)
+    const [witness, setWitness] = useState<WitnessRequestType[]>([])
 
     function handleChooseCompanyValue(value: any) {
         setCompanyId(value || null)
@@ -97,6 +98,10 @@ function RegisterVictimsView() {
             .replace(/^(\d{2})(\d)/, '($1) $2')
             .replace(/(\d{5})(\d)/, '$1-$2')
             .replace(/(-\d{4})\d+?$/, '$1')
+    }
+
+    async function handleCreateWitness(witnessRequest: WitnessRequestType): Promise<void> {
+        setWitness([...witness, witnessRequest])
     }
 
     return (
@@ -178,7 +183,7 @@ function RegisterVictimsView() {
                 </div>
             </div>
 
-            <RegisterWitnessModal isOpen={modalRegisterWitness.isOpen} onOpenChange={modalRegisterWitness.onOpenChange} />
+            <RegisterWitnessModal isOpen={modalRegisterWitness.isOpen} onOpenChange={modalRegisterWitness.onOpenChange} handleCreateWitness={handleCreateWitness} />
             <RegisterIncidentModal isOpen={modalRegisterIncident.isOpen} onOpenChange={modalRegisterIncident.onOpenChange} />
             <SendFileModal isOpen={modalSendFile.isOpen} onOpenChange={modalSendFile.onOpenChange} />
         </>
