@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import { ListVictimsResponseType, ListVictimsType } from "./HomeViewType"
 import { Spinner } from "@nextui-org/react"
 import { useRouter } from "next/router"
+import { NotificationAction } from "@/src/components/Notifications/Notification"
 
 function HomeView() {
     const [search, setSearch] = useState<string>('')
@@ -25,9 +26,9 @@ function HomeView() {
         const response = await avaguardService.get<ListVictimsResponseType>('/listVictims')
 
         if (response?.validationError) {
-
+            NotificationAction.notificationWarning(response?.validationError)
         } else if (response?.error) {
-            console.log(response.error)
+            NotificationAction.notificationError(response.error)
         } else if (response?.victims) {
             setVictims(response.victims)
         }

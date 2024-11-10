@@ -1,67 +1,50 @@
-import { useDisclosure, TableCell, Tooltip, Pagination, TableHeader, TableColumn, TableBody, TableRow, Table } from "@nextui-org/react"
+import { useDisclosure, TableCell, Tooltip, Pagination, TableHeader, TableColumn, TableBody, TableRow, Table, Spinner } from "@nextui-org/react"
 import { EyeIcon, EditIcon, DeleteIcon, Search } from "lucide-react"
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { ButtomPrimaryOutline } from "../Buttons/BurronPrimaryOutline"
 import { InputText } from "../Inputs/InputText"
 import { RegisterIncidentModal } from "../Modals/RegisterIncidentModal"
 import { RegisterWitnessModal } from "../Modals/RegisterWitnessModal"
+import { ListVictimWitnessResponseType, VictimWitnessType, WitnessRequestType } from "@/src/types/witness"
+import { VictimsWithInformationType } from "@/src/Views/HomeView/HomeViewType"
+import { avaguardService } from "@/src/service/avaguardService"
+import { NotificationAction } from "../Notifications/Notification"
 
-function DatailsWitnessSession() {
+interface DatailsWitnessSessionProps {
+    victim: VictimsWithInformationType
+}
+
+function DatailsWitnessSession(props: DatailsWitnessSessionProps) {
     const [page, setPage] = useState(1)
-    const [witness, setWitness] = useState<any>([
-        {
-            id: "1",
-            name: "João Silva",
-            address: "Rua das Flores, 123",
-            position: "CEO",
-        },
-        {
-            id: "2",
-            name: "Maria Oliveira",
-            address: "Avenida Brasil, 456",
-            position: "Gerente de Operações",
-        },
-        {
-            id: "3",
-            name: "Pedro Santos",
-            address: "Rua dos Limoeiros, 789",
-            position: "Desenvolvedor Senior",
-        },
-        {
-            id: "4",
-            name: "Ana Pereira",
-            address: "Travessa dos Pinhais, 234",
-            position: "Analista de Marketing",
-        },
-        {
-            id: "5",
-            name: "Carlos Souza",
-            address: "Praça Central, 98",
-            position: "Diretor Financeiro",
-        },
-        {
-            id: "6",
-            name: "Luciana Costa",
-            address: "Rua das Palmeiras, 567",
-            position: "Coordenadora de RH",
-        },
-        {
-            id: "7",
-            name: "Ricardo Lima",
-            address: "Avenida dos Coqueiros, 654",
-            position: "Analista de Sistemas",
-        },
-        {
-            id: "8",
-            name: "Fernanda Rodrigues",
-            address: "Rua dos Ipês, 345",
-            position: "Designer Gráfico",
-        }
-    ])
+    const [witness, setWitness] = useState<VictimWitnessType[]>([])
+    const [loading, setLoading] = useState<boolean>(true)
+    const [victim, setVictim] = useState<VictimsWithInformationType>()
     const rowsPerPage = 10
     const pages = Math.ceil(witness.length / rowsPerPage)
     const modalRegisterWitness = useDisclosure()
     const [search, setSearch] = useState<string>('')
+
+    useEffect(() => {
+        if (props.victim) {
+            init(props.victim)
+        }
+    }, [props.victim])
+
+    async function init(victim: VictimsWithInformationType) {
+        setLoading(true)
+        const response = await avaguardService.get<ListVictimWitnessResponseType>(`/listWitnessByVictimId?id=${victim.victimId}`)
+
+        if (response?.validationError) {
+            NotificationAction.notificationWarning(response?.validationError)
+        } else if (response?.error) {
+            NotificationAction.notificationError(response.error)
+        } else if (response?.witness) {
+            setWitness(response.witness)
+            setVictim(victim)
+        }
+
+        setLoading(false)
+    }
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value)
@@ -74,24 +57,18 @@ function DatailsWitnessSession() {
         return witness.slice(start, end)
     }, [page, witness])
 
-    const renderCell = useCallback((incident: any, columnKey: any) => {
-        const cellValue = incident[columnKey]
+    const renderCell = useCallback((witness: any, columnKey: any) => {
+        const cellValue = witness[columnKey]
 
         switch (columnKey) {
             case "name":
                 return (
-                    <TableCell >{incident.name}</TableCell>
+                    <TableCell>{`${witness.firstName} ${witness.lastName}`}</TableCell>
                 )
             case "address":
                 return (
                     <TableCell >
-                        {incident.address}
-                    </TableCell>
-                )
-            case "position":
-                return (
-                    <TableCell >
-                        {incident.position}
+                        {witness.address}
                     </TableCell>
                 )
             case "actions":
@@ -121,6 +98,23 @@ function DatailsWitnessSession() {
         }
     }, [])
 
+    async function handleCreateWitness(witnessRequest: WitnessRequestType, onClose: () => void): Promise<void> {
+        const victimWitnessCreated = await avaguardService.post('/createVictimWitness', {
+            ...witnessRequest,
+            victimId: victim?.victimId
+        })
+
+        if (victimWitnessCreated.error) {
+            NotificationAction.notificationError(victimWitnessCreated.error)
+        } else if (victimWitnessCreated.validationError) {
+            NotificationAction.notificationWarning(victimWitnessCreated.validationError)
+        } else {
+            NotificationAction.notificationSuccess('Incidente registrado com sucesso.')
+            init(victim as VictimsWithInformationType)
+            onClose()
+        }
+    }
+
     return (
         <>
             <div className='w-4/5 shadow-md p-10 pb-0 rounded-2xl shadow-tint-4 h-[630px] overflow-y-auto'>
@@ -146,45 +140,52 @@ function DatailsWitnessSession() {
                     </div>
                 </div>
                 <div className='mt-4 h-[520px]'>
-                    <Table
-                        aria-label="Example table with client side pagination"
-                        bottomContent={
-                            <div className="flex w-full justify-end">
-                                <Pagination
-                                    isCompact
-                                    showControls
-                                    showShadow
-                                    color="primary"
-                                    page={page}
-                                    total={pages}
-                                    onChange={(page) => setPage(page)}
-                                />
+                    {
+                        loading ? (
+                            <div className="flex justify-center items-center h-full">
+                                <Spinner size="lg" />
                             </div>
-                        }
-                        classNames={{
-                            wrapper: "h-full shadow-none",
-                            th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
-                        }}
-                        className="h-full shadow-none"
-                    >
-                        <TableHeader>
-                            <TableColumn key="name" style={{ width: '20%' }}>NOME</TableColumn>
-                            <TableColumn key="address" style={{ width: '40%' }}>ENDEREÇO</TableColumn>
-                            <TableColumn key="position" style={{ width: '40%' }}>CARGO</TableColumn>
-                            <TableColumn key="actions" style={{ width: '20%', textAlign: 'center' }}>AÇÕES</TableColumn>
-                        </TableHeader>
-                        <TableBody items={items}>
-                            {(item: any) => (
-                                <TableRow key={item.id}>
-                                    {(columnKey) => renderCell(item, columnKey)}
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                        ) : (
+                            <Table
+                                aria-label="Example table with client side pagination"
+                                bottomContent={
+                                    <div className="flex w-full justify-end">
+                                        <Pagination
+                                            isCompact
+                                            showControls
+                                            showShadow
+                                            color="primary"
+                                            page={page}
+                                            total={pages}
+                                            onChange={(page) => setPage(page)}
+                                        />
+                                    </div>
+                                }
+                                classNames={{
+                                    wrapper: "h-full shadow-none",
+                                    th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
+                                }}
+                                className="h-full shadow-none"
+                            >
+                                <TableHeader>
+                                    <TableColumn key="name" style={{ width: '20%' }}>NOME</TableColumn>
+                                    <TableColumn key="address" style={{ width: '40%' }}>ENDEREÇO</TableColumn>
+                                    <TableColumn key="actions" style={{ width: '20%', textAlign: 'center' }}>AÇÕES</TableColumn>
+                                </TableHeader>
+                                <TableBody items={items}>
+                                    {(item: VictimWitnessType) => (
+                                        <TableRow key={item.victimWitnessId}>
+                                            {(columnKey) => renderCell(item, columnKey)}
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        )
+                    }
                 </div>
             </div>
 
-            <RegisterWitnessModal isOpen={modalRegisterWitness.isOpen} onOpenChange={modalRegisterWitness.onOpenChange} />
+            <RegisterWitnessModal isOpen={modalRegisterWitness.isOpen} onOpenChange={modalRegisterWitness.onOpenChange} handleCreateWitness={handleCreateWitness} />
         </>
     )
 }

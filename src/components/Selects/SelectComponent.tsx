@@ -10,7 +10,7 @@ interface SelectComponentProps {
     itens: ListItemsType[]
     onChange?: (e: any) => void
     disabled?: boolean
-    onClick?: (event: React.MouseEvent<HTMLSelectElement, MouseEvent>) => Promise<void>
+    onOpenChange?: Function
     isLoading?: boolean
 }
 
@@ -48,7 +48,11 @@ function SelectComponent(props: SelectComponentProps) {
                 }}
                 onChange={props.onChange}
                 disabled={props.disabled || false}
-                onClick={props.onClick}
+                onOpenChange={(isOpen) => {
+                    if(isOpen && props.onOpenChange) {
+                        props.onOpenChange()
+                    }
+                }}
                 isLoading={props.isLoading}
             >
                 {props.itens.map((item) => (

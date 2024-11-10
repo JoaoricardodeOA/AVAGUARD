@@ -13,10 +13,6 @@ interface DatePickerComponentProps {
 }
 
 function DatePickerComponent(props: DatePickerComponentProps) {
-    let defaultDate = today(getLocalTimeZone())
-    let { locale } = useLocale()
-    let formatter = useDateFormatter({ dateStyle: "short" })
-
     return (
         <div className={`${(props.align === "center" || !props.align) && "text-center"} ${(props.align === "left") && "text-start"} ${(props.align === "right") && "text-end"} ${props.className}`}>
             <p className="text-xl text-neutral-dGrey font-semibold mb-3">{props.label}</p>
@@ -51,7 +47,6 @@ function DatePickerComponent(props: DatePickerComponentProps) {
                     backgroundColor: 'white'
                 }}
                 onChange={(dateString) => {
-                    // formatter.format(dateString.toDate(getLocalTimeZone()))
                     props.handleOnChangeDate(dateString)
                 }}
                 value={props.value}

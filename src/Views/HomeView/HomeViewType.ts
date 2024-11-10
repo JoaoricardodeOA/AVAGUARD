@@ -14,6 +14,7 @@ type VictimsWithInformationType = {
     companyPositionName: string;
     eventDescription: string;
     avatar: string;
+    admissionDate: string
 }
 
 type ListVictimsType = {
@@ -25,11 +26,18 @@ type ListVictimsType = {
 type ListVictimsResponseType = {
     victims?: ListVictimsType[]
     error?: string
-    validationError?: string[]
+    validationError?: string
+}
+
+type GetVictimsResponseType = {
+    victim?: VictimsWithInformationType
+    error?: string
+    validationError?: string
 }
 
 export type {
     VictimsWithInformationType,
     ListVictimsResponseType,
-    ListVictimsType
+    ListVictimsType,
+    GetVictimsResponseType
 }

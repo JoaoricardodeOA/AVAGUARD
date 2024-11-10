@@ -1,59 +1,50 @@
-import { useDisclosure, TableCell, Tooltip, Pagination, TableHeader, TableColumn, TableBody, TableRow, Table } from "@nextui-org/react"
+import { useDisclosure, TableCell, Tooltip, Pagination, TableHeader, TableColumn, TableBody, TableRow, Table, Spinner } from "@nextui-org/react"
 import { EyeIcon, EditIcon, DeleteIcon, Search } from "lucide-react"
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { ButtomPrimaryOutline } from "../Buttons/BurronPrimaryOutline"
 import { InputText } from "../Inputs/InputText"
-import { RegisterWitnessModal } from "../Modals/RegisterWitnessModal"
 import { RegisterIncidentModal } from "../Modals/RegisterIncidentModal"
+import { VictimsWithInformationType } from "@/src/Views/HomeView/HomeViewType"
+import { CreateVictimIncidentUseCaseDTOInputType, ListVictimIncidentResponseType, VictimIncidentInformationType, VictimIncidentType } from "@/src/types/incident"
+import { avaguardService } from "@/src/service/avaguardService"
+import { NotificationAction } from "../Notifications/Notification"
+import { uploadFile } from "@/src/service/file"
 
-function DatailsIncitentsSession() {
+interface DatailsIncitentsSessionProps {
+    victim: VictimsWithInformationType
+}
+
+function DatailsIncitentsSession(props: DatailsIncitentsSessionProps) {
     const [page, setPage] = useState(1)
-    const [incidents, setIncidents] = useState<any>([
-        {
-            id: "1",
-            date: '03/12/2031',
-            description: "CEO",
-        },
-        {
-            id: "2",
-            date: '03/12/2031',
-            description: "Technical Lead",
-        },
-        {
-            id: "3",
-            date: '03/12/2031',
-            description: "Senior Developer",
-        },
-        {
-            id: "4",
-            date: '03/12/2031',
-            description: "Senior Developer",
-        },
-        {
-            id: "5",
-            date: '03/12/2031',
-            description: "Senior Developer",
-        },
-        {
-            id: "6",
-            date: '03/12/2031',
-            description: "Senior Developer",
-        },
-        {
-            id: "7",
-            date: '03/12/2031',
-            description: "Senior Developer",
-        },
-        {
-            id: "8",
-            date: '03/12/2031',
-            description: "Senior Developer",
-        }
-    ])
+    const [incidents, setIncidents] = useState<VictimIncidentInformationType[]>([])
+    const [search, setSearch] = useState<string>('')
+    const [loading, setLoading] = useState<boolean>(true)
+    const [victim, setVictim] = useState<VictimsWithInformationType>()
     const rowsPerPage = 10
     const pages = Math.ceil(incidents.length / rowsPerPage)
     const modalRegisterIncident = useDisclosure()
-    const [search, setSearch] = useState<string>('')
+
+    useEffect(() => {
+        if(props.victim) {
+            init(props.victim)
+        }
+    }, [props.victim])
+
+    async function init(victim: VictimsWithInformationType) {
+        setLoading(true)
+        const response = await avaguardService.get<ListVictimIncidentResponseType>(`/listVictimIncidents?id=${victim.victimId}`)
+
+        if (response?.validationError) {
+            NotificationAction.notificationWarning(response?.validationError)
+        } else if (response?.error) {
+            NotificationAction.notificationError(response.error)
+        } else if (response?.incidents) {
+            setIncidents(response.incidents)
+            setVictim(victim)
+        }
+
+        setLoading(false)
+    }
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value)
@@ -77,7 +68,7 @@ function DatailsIncitentsSession() {
             case "description":
                 return (
                     <TableCell >
-                        {incident.description}
+                        {incident.eventDescription}
                     </TableCell>
                 )
             case "actions":
@@ -107,6 +98,46 @@ function DatailsIncitentsSession() {
         }
     }, [])
 
+    async function handleCreateIncident(victimIncident: VictimIncidentType, onClose: () => void): Promise<void> {
+        try {
+            const evidences: string[] = []
+
+            for (let j = 0; j < victimIncident.files.length; j++) {
+                const file = victimIncident.files[j];
+
+                try {
+                    const url = await uploadFile(file, 'victim-incident')
+
+                    evidences.push(url)
+                } catch (error: any) {
+                    NotificationAction.notificationError(error.message)
+                }
+            }
+
+            const victimIncidentInput: CreateVictimIncidentUseCaseDTOInputType = {
+                date: victimIncident.date,
+                eventDescription: victimIncident.eventDescription,
+                evidences,
+                victimId: victim?.victimId as string
+            }
+
+            const victimIncidentCreated = await avaguardService.post('/createVictimIncident', {
+                ...victimIncidentInput
+            })
+
+            if(victimIncidentCreated.error) {
+                NotificationAction.notificationError(victimIncidentCreated.error)
+            } else if(victimIncidentCreated.validationError) {
+                NotificationAction.notificationWarning(victimIncidentCreated.validationError)
+            } else {
+                NotificationAction.notificationSuccess('Incidente registrado com sucesso.')
+                init(victim as VictimsWithInformationType)
+                onClose()
+            }
+        } catch (error: any) {
+            NotificationAction.notificationError(error.message)
+        }
+    }
 
     return (
         <>
@@ -133,44 +164,52 @@ function DatailsIncitentsSession() {
                     </div>
                 </div>
                 <div className='mt-4 h-[520px]'>
-                    <Table
-                        aria-label="Example table with client side pagination"
-                        bottomContent={
-                            <div className="flex w-full justify-end">
-                                <Pagination
-                                    isCompact
-                                    showControls
-                                    showShadow
-                                    color="primary"
-                                    page={page}
-                                    total={pages}
-                                    onChange={(page) => setPage(page)}
-                                />
+                    {
+                        loading ? (
+                            <div className="flex justify-center items-center h-full">
+                                <Spinner size="lg" />
                             </div>
-                        }
-                        classNames={{
-                            wrapper: "h-full shadow-none",
-                            th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
-                        }}
-                        className="h-full shadow-none"
-                    >
-                        <TableHeader>
-                            <TableColumn key="date" style={{ width: '20%' }}>DATA</TableColumn>
-                            <TableColumn key="description" style={{ width: '60%' }}>DESCRIÇÃO</TableColumn>
-                            <TableColumn key="actions" style={{ width: '20%', textAlign: 'center' }}>AÇÕES</TableColumn>
-                        </TableHeader>
-                        <TableBody items={items}>
-                            {(item: any) => (
-                                <TableRow key={item.id}>
-                                    {(columnKey) => renderCell(item, columnKey)}
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                        ) : (
+                            <Table
+                                aria-label="Example table with client side pagination"
+                                bottomContent={
+                                    <div className="flex w-full justify-end">
+                                        <Pagination
+                                            isCompact
+                                            showControls
+                                            showShadow
+                                            color="primary"
+                                            page={page}
+                                            total={pages}
+                                            onChange={(page) => setPage(page)}
+                                        />
+                                    </div>
+                                }
+                                classNames={{
+                                    wrapper: "h-full shadow-none",
+                                    th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
+                                }}
+                                className="h-full shadow-none"
+                            >
+                                <TableHeader>
+                                    <TableColumn key="date" style={{ width: '20%' }}>DATA</TableColumn>
+                                    <TableColumn key="description" style={{ width: '60%' }}>DESCRIÇÃO</TableColumn>
+                                    <TableColumn key="actions" style={{ width: '20%', textAlign: 'center' }}>AÇÕES</TableColumn>
+                                </TableHeader>
+                                <TableBody items={items}>
+                                    {(item: VictimIncidentInformationType) => (
+                                        <TableRow key={item.victimIncidentId}>
+                                            {(columnKey) => renderCell(item, columnKey)}
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        )
+                    }
                 </div>
             </div>
 
-            <RegisterIncidentModal isOpen={modalRegisterIncident.isOpen} onOpenChange={modalRegisterIncident.onOpenChange} />
+            <RegisterIncidentModal isOpen={modalRegisterIncident.isOpen} onOpenChange={modalRegisterIncident.onOpenChange} createVictimIncident={handleCreateIncident} />
         </>
     )
 }

@@ -3,12 +3,14 @@ import { CustomFormInput } from '../Inputs/CustomFormInput'
 import { Upload } from 'lucide-react'
 import { ButtonPrimary } from '../Buttons/ButtonPrimary'
 import { SelectComponent } from '../Selects/SelectComponent'
-import { useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { ListItemsType } from '@/src/types/select'
+import { VictimFileType } from "@/src/types/victmis"
 
 interface SendFileModalProps {
   isOpen: boolean
   onOpenChange: () => void
+  createVictimFile: (victimFile: VictimFileType, onClose: () => void) => Promise<void> 
 }
 
 function SendFileModal(props: SendFileModalProps) {
@@ -16,16 +18,54 @@ function SendFileModal(props: SendFileModalProps) {
     {
       ID: 'identidade',
       label: 'Identidade'
-    },
-    {
-      ID: 'cpf',
-      label: 'CPF'
-    },
-    {
-      ID: 'rg',
-      label: 'RG'
     }
   ])
+  const [file, setFile] = useState<File | null>(null) 
+  const [description, setDescription] = useState<string>('')
+  const [fileType, setFileType] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (!props.isOpen) {
+      setFile(null)
+      setDescription('')
+      setFileType('')
+    }
+  }, [props.isOpen])
+
+  async function onChange(e: ChangeEvent<HTMLInputElement>): Promise<void> {
+    e.preventDefault()
+
+    if (e.target.files) {
+      const file = e.target.files[0]
+
+      setFile(file)
+    }
+  }
+
+  async function handleOnClickCreateVictimFile(e: React.MouseEvent<HTMLButtonElement>, onClose: () => void) {
+    e.preventDefault()
+
+    setLoading(true)
+
+    const req: VictimFileType = {
+      description,
+      fileType,
+      file: file as File,
+    } 
+
+    await props.createVictimFile(req, onClose)
+    
+    setLoading(false)
+  }
+
+  function handleOnChangeFileType(e: any) {
+    if(e.target.value) {
+      setFileType(e.target.value)
+    } else {
+      setFileType('')
+    }
+  }
 
   return (
     <>
@@ -48,8 +88,8 @@ function SendFileModal(props: SendFileModalProps) {
             <>
               <ModalHeader className="flex flex-col gap-1">Enviar Arquivo</ModalHeader>
               <ModalBody>
-                <CustomFormInput align="left" label="Descrição" type="text" variant="lg" />
-                <SelectComponent itens={fileTypes} align="left" label="Tipo do Arquivo" variant="sm" className='mt-5' />
+                <CustomFormInput align="left" label="Descrição" type="text" variant="lg" onChange={(e) => setDescription(e.target.value)} value={description}/>
+                <SelectComponent itens={fileTypes} align="left" label="Tipo do Arquivo" variant="sm" className='mt-5' onChange={e => handleOnChangeFileType(e)}/>
                 <CustomFormInput
                   variantIcon='left'
                   iconLeft={<Upload className='text-primary' />}
@@ -57,13 +97,14 @@ function SendFileModal(props: SendFileModalProps) {
                   type="file"
                   label="Arquivo" align='left'
                   className='mt-5'
+                  onChange={onChange}
                 />
               </ModalBody>
               <ModalFooter className='mt-5'>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <ButtonPrimary variant='md' variantIcon='no-icon' onPress={onClose}>
+                <ButtonPrimary variant='md' variantIcon='no-icon' onClick={(e) => handleOnClickCreateVictimFile(e, onClose)} isLoading={loading} disabled={loading}>
                   Enviar
                 </ButtonPrimary>
               </ModalFooter>

@@ -1,15 +1,16 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@nextui-org/react"
 import { CustomFormInput } from '../Inputs/CustomFormInput'
 import { ButtonPrimary } from '../Buttons/ButtonPrimary'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CustomFormTextArea } from '../Inputs/CustomFormTextArea'
 import { WitnessRequestType } from '@/src/types/witness'
 import { NotificationAction } from '../Notifications/Notification'
+import { removeMasks, formatCPF, maskPhone } from "@/src/common/utils"
 
 interface RegisterWitnessModalProps {
   isOpen: boolean
   onOpenChange: () => void
-  handleCreateWitness: (witness: WitnessRequestType) => Promise<void>
+  handleCreateWitness: (witness: WitnessRequestType, onClose: () => void) => Promise<void>
 }
 
 function RegisterWitnessModal(props: RegisterWitnessModalProps) {
@@ -18,7 +19,21 @@ function RegisterWitnessModal(props: RegisterWitnessModalProps) {
   const [phone, setPhone] = useState<string>('')
   const [cpf, setCpf] = useState<string>('')
   const [address, setAddress] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
   const [eventDescription, setEventDescription] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (!props.isOpen) {
+      setFirstName('')
+      setLastName('')
+      setPhone('')
+      setCpf('')
+      setAddress('')
+      setEventDescription('')
+      setEmail('')
+    }
+  }, [props.isOpen])
 
   function validate(witness: WitnessRequestType): string | null {
     if (!witness.firstName || witness.firstName.trim().length === 0) {
@@ -47,57 +62,28 @@ function RegisterWitnessModal(props: RegisterWitnessModalProps) {
   async function handleOnClickCreateVictim(e: React.MouseEvent<HTMLButtonElement>, onClose: () => void) {
     e.preventDefault()
 
+    setLoading(true)
+    
     const witness: WitnessRequestType = {
       firstName,
       lastName,
       phone: removeMasks(phone),
       cpf: removeMasks(cpf),
       address,
-      eventDescription
+      eventDescription,
+      email,
+      victimId: null
     }
-
+    
     const error = validate(witness)
-
+    
     if (!error) {
-      await props.handleCreateWitness(witness)
-
-      NotificationAction.notificationSuccess("Testemunha adicionada com sucesso!")
-
-      handleOnClose(onClose)
+      await props.handleCreateWitness(witness, onClose)
     } else {
       NotificationAction.notificationWarning(error)
     }
-  }
 
-  function removeMasks(value: string): string {
-    return value.replace(/\D/g, "")
-  }
-
-  function formatCPF(value: string) {
-    return value
-      .replace(/\D/g, "")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-  }
-
-  function maskPhone(value: string) {
-    return value
-      .replace(/\D/g, '')
-      .replace(/^(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d{5})(\d)/, '$1-$2')
-      .replace(/(-\d{4})\d+?$/, '$1')
-  }
-
-  function handleOnClose(onClose: () => void) {
-    setFirstName('')
-    setLastName('')
-    setPhone('')
-    setCpf('')
-    setAddress('')
-    setEventDescription('')
-
-    onClose()
+    setLoading(false)
   }
 
   return (
@@ -132,7 +118,8 @@ function RegisterWitnessModal(props: RegisterWitnessModalProps) {
                   <CustomFormInput value={maskPhone(phone)} onChange={(e) => setPhone(e.target.value)} align="left" className="w-1/2" label="Telefone" type="text" variant="md" />
                 </div>
                 <div className="flex gap-3 items-center w-full mt-5">
-                  <CustomFormInput value={address} onChange={(e) => setAddress(e.target.value)} align="left" className="w-full" label="Endereço" type="text" variant="md" />
+                  <CustomFormInput value={email} onChange={(e) => setEmail(e.target.value)} align="left" className="w-1/2" label="E-mail" type="text" variant="md" />
+                  <CustomFormInput value={address} onChange={(e) => setAddress(e.target.value)} align="left" className="w-1/2" label="Endereço" type="text" variant="md" />
                 </div>
                 <div className="flex gap-3 items-center justify-center w-full mt-10">
                   <CustomFormTextArea value={eventDescription} onChange={(e) => setEventDescription(e.target.value)} className="w-full" label="Descrição do Ocorrido de Acordo com a Testemunha" variant="lg" />
@@ -142,7 +129,7 @@ function RegisterWitnessModal(props: RegisterWitnessModalProps) {
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <ButtonPrimary variant='md' variantIcon='no-icon' onClick={(e) => handleOnClickCreateVictim(e, onClose)}>
+                <ButtonPrimary variant='md' variantIcon='no-icon' onClick={(e) => handleOnClickCreateVictim(e, onClose)} isLoading={loading} disabled={loading}>
                   Enviar
                 </ButtonPrimary>
               </ModalFooter>

@@ -3,18 +3,15 @@ import { InputText } from "@/src/components/Inputs/InputText"
 import { ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/router"
+import { signIn } from "next-auth/react"
+import { NotificationAction } from "@/src/components/Notifications/Notification"
 
 function LoginView() {
-    //routing button
-    const router = useRouter();
-
-    const handleClick = () => {
-        router.push('/home'); // Replace with the desired route
-    };
-
     const [isVisible, setIsVisible] = useState(false)
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [loading, setLoading] = useState<boolean>(false)
+    const router = useRouter();
 
     const toggleVisibility = () => setIsVisible(!isVisible)
 
@@ -28,6 +25,28 @@ function LoginView() {
         e.preventDefault()
 
         setPassword(e.target.value)
+    }
+
+    async function handleOnClickLogin(e: React.MouseEvent<HTMLButtonElement>) {
+        e.preventDefault()
+
+        setLoading(true)
+
+        try {
+            const res = await signIn('credentials', {
+                email, password, redirect: false
+            })
+
+            if (res && res.error) {
+                NotificationAction.notificationError(res.error)
+            } else {
+                router.push('/home')
+            }
+        } catch (error: any) {
+            NotificationAction.notificationError(error.message)
+        }
+
+        setLoading(false)
     }
 
     return (
@@ -76,7 +95,7 @@ function LoginView() {
                         />
                     </div>
                     <p className="text-end mt-5 text-md text-tint-3 font-semibold">Esqueceu a Senha?</p>
-                    <ButtonPrimary className="w-full mt-5 text-lg font-light" variant="lg" variantIcon="right" icon={<ArrowRight />} onClick={handleClick}>
+                    <ButtonPrimary className="w-full mt-5 text-lg font-light" variant="lg" variantIcon="right" icon={<ArrowRight />} onClick={handleOnClickLogin} isLoading={loading} disabled={loading}>
                         Entrar
                     </ButtonPrimary>
                 </div>

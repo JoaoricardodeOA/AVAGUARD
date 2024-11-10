@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { SelectComponent } from "./SelectComponent"
 import { avaguardService } from "@/src/service/avaguardService"
 import { ListItemsType } from "@/src/types/select"
+import { NotificationAction } from "../Notifications/Notification"
 
 interface GendersSelectComponentProps {
     handleChooseValue(value: string): void
@@ -25,9 +26,9 @@ function GendersSelectComponent(props: GendersSelectComponentProps) {
         const response: any = await avaguardService.get('/listGenders')
 
         if (response?.validationError) {
-            console.log(response?.validationError)
+            NotificationAction.notificationWarning(response?.validationError)
         } else if (response?.error) {
-            console.log(response.error)
+            NotificationAction.notificationError(response?.error)
         } else if (response?.genders) {
             setGenders(response.genders.map((gender: any) => ({ ID: gender.genderId, label: gender.name })))
         }
@@ -40,9 +41,7 @@ function GendersSelectComponent(props: GendersSelectComponentProps) {
         props.handleChooseValue(e.target.value)
     }
 
-    async function handleOnClickList(event: React.MouseEvent<HTMLSelectElement, MouseEvent>): Promise<void> {
-        event.preventDefault()
-
+    async function handleList(): Promise<void> {
         if (!loadingRef.current) {
             setLoading(true)
             loadingRef.current = true
@@ -63,7 +62,7 @@ function GendersSelectComponent(props: GendersSelectComponentProps) {
             className={props.className}
             radius={props.radius}
             onChange={handleSelectionChange}
-            onClick={handleOnClickList}
+            onOpenChange={handleList}
             isLoading={loading}
         />
     )

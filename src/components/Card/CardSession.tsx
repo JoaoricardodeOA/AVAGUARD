@@ -1,6 +1,7 @@
 import { useRef } from "react"
 import { CardComponent } from "./CardComponent"
 import { VictimsWithInformationType } from "@/src/Views/HomeView/HomeViewType"
+import { useRouter } from "next/router"
 
 interface CardSessionProps {
     clientName: string
@@ -9,6 +10,7 @@ interface CardSessionProps {
 
 function CardSession(props: CardSessionProps) {
     const scrollRef = useRef<HTMLDivElement | null>(null)
+    const router = useRouter()
     let isDown = false
     let startX = 0
     let scrollLeft = 0
@@ -46,6 +48,12 @@ function CardSession(props: CardSessionProps) {
         }
     }
 
+    function handleOnClickRedirect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, id: string) {
+        e.preventDefault()
+        
+        router.push(`/victimDetails?id=${id}`)
+    }
+
     return (
         <>
             {
@@ -62,7 +70,9 @@ function CardSession(props: CardSessionProps) {
                         >
                             {
                                 props.victimis.map((victim) => (
-                                    <CardComponent imgURL={victim.avatar} description={victim.eventDescription} name={victim.victimName} />
+                                    <div onClick={(e) => handleOnClickRedirect(e, victim.victimId)}>
+                                        <CardComponent id={victim.victimId} imgURL={victim.avatar} description={victim.eventDescription} name={victim.victimName} />
+                                    </div>
                                 ))
                             }
                         </div>

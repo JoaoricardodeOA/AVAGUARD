@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { SelectComponent } from "./SelectComponent"
 import { avaguardService } from "@/src/service/avaguardService"
 import { ListItemsType } from "@/src/types/select"
@@ -15,6 +15,8 @@ interface CompanysSelectComponentProps {
 
 function CompanysSelectComponent(props: CompanysSelectComponentProps) {
     const [companys, setCompanys] = useState<ListItemsType[]>([])
+    const [loading, setLoading] = useState<boolean>(true)
+    const loadingRef = useRef<boolean>(true)
 
     useEffect(() => {
         init()
@@ -24,17 +26,31 @@ function CompanysSelectComponent(props: CompanysSelectComponentProps) {
         const response: any = await avaguardService.get('/listCompanys')
 
         if (response?.validationError) {
-            console.log(response?.validationError)
+            NotificationAction.notificationWarning(response?.validationError)
         } else if (response?.error) {
-            NotificationAction.notificationError()
-            console.log(response.error)
+            NotificationAction.notificationError(response?.error)
         } else if (response?.companys) {
             setCompanys(response.companys.map((company: any) => ({ ID: company.companyId, label: company.name })))
         }
+
+        setLoading(false)
+        loadingRef.current = false
     }
 
     function handleSelectionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         props.handleChooseValue(e.target.value)
+    }
+
+    async function handleList(): Promise<void> {
+        if (!loadingRef.current) {
+            setLoading(true)
+            loadingRef.current = true
+
+            await init()
+
+            setLoading(false)
+            loadingRef.current = false
+        }
     }
 
     return (
@@ -46,6 +62,8 @@ function CompanysSelectComponent(props: CompanysSelectComponentProps) {
             className={props.className}
             radius={props.radius}
             onChange={handleSelectionChange}
+            onOpenChange={handleList}
+            isLoading={loading}
         />
     )
 }

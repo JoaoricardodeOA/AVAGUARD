@@ -1,5 +1,5 @@
 import { Input } from "@nextui-org/input"
-import { ChangeEvent, InputHTMLAttributes, ReactElement } from 'react'
+import { ChangeEvent, InputHTMLAttributes, MutableRefObject, ReactElement } from 'react'
 
 interface CustomFormInputProps extends InputHTMLAttributes<HTMLInputElement> {
     variant: 'sm' | 'md' | 'lg',
@@ -12,7 +12,8 @@ interface CustomFormInputProps extends InputHTMLAttributes<HTMLInputElement> {
     iconLeft?: ReactElement
     iconRight?: ReactElement
     onChange: (e: ChangeEvent<HTMLInputElement>) => void
-    value: any
+    value?: any
+    ref?: MutableRefObject<HTMLInputElement | null>
 }
 
 function CustomFormInput(props: CustomFormInputProps) {
@@ -61,6 +62,7 @@ function CustomFormInput(props: CustomFormInputProps) {
                 }
                 onChange={props.onChange}
                 value={props.value}
+                ref={props.ref}
             />
         </div>
     )

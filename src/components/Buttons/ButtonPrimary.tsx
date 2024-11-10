@@ -10,6 +10,8 @@ interface ButtonPrimaryProps {
     onClick?: (event: MouseEvent<HTMLButtonElement>) => void // Add onClick prop
     type?: 'button' | 'submit' | 'reset' // Optional type prop
     onPress?: (e: any) => void
+    isLoading?: boolean
+    disabled?: boolean
 }
 
 export function ButtonPrimary(props: ButtonPrimaryProps) {
@@ -21,6 +23,8 @@ export function ButtonPrimary(props: ButtonPrimaryProps) {
             type={props.type} // Use type prop
             aria-label={props.children} // Improve accessibility
             onPress={props.onPress}
+            isLoading={props.isLoading}
+            disabled={props.disabled}
         >
             {
                 props.variantIcon === "left" && props.icon && props.icon

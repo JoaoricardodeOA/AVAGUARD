@@ -18,7 +18,7 @@ class NotificationAction {
 
     static notificationWarning(message: string) {
         Store.addNotification({
-            title: "Erro!",
+            title: "Atenção!",
             message,
             type: "warning",
             insert: "top",

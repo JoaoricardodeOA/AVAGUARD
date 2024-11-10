@@ -3,10 +3,11 @@ import { SelectComponent } from "./SelectComponent"
 import { avaguardService } from "@/src/service/avaguardService"
 import { ListItemsType } from "@/src/types/select"
 import { NotificationAction } from "../Notifications/Notification"
+import { ListVictimWitnessResponseType, VictimWitnessType } from "@/src/types/witness"
 
-interface CompanyPositionsSelectComponentProps {
-    handleChooseValue(value: string): void
-    companyId: string | null
+interface VictimWitnessSelectComponentProps {
+    handleChooseValue(value: VictimWitnessType): void
+    victimId: string | null
     variant: 'sm' | 'md' | 'lg',
     radius?: "none" | "sm" | "md" | "lg" | "full"
     label: string
@@ -14,25 +15,29 @@ interface CompanyPositionsSelectComponentProps {
     align?: 'left' | 'center' | 'right'
 }
 
-function CompanyPositionsSelectComponent(props: CompanyPositionsSelectComponentProps) {
-    const [positions, setPositions] = useState<ListItemsType[]>([])
+function VictimWitnessSelectComponent(props: VictimWitnessSelectComponentProps) {
     const [loading, setLoading] = useState<boolean>(true)
+    const [witness, setWitness] = useState<VictimWitnessType[]>([])
+    const [items, setItems] = useState<ListItemsType[]>([])
     const loadingRef = useRef<boolean>(true)
 
     useEffect(() => {
-        init()
-    }, [props.companyId])
+        if (props.victimId) {
+            listVictimWitness(props.victimId)
+        }
+    }, [props.victimId])
 
-    async function init() {
-        if (props.companyId) {
-            const response: any = await avaguardService.get(`/listCompanyPositionsByCompanyId?companyId=${props.companyId}`)
+    async function listVictimWitness(victimId: string) {
+        if (props.victimId) {
+            const response = await avaguardService.get<ListVictimWitnessResponseType>(`/listWitnessByVictimId?id=${victimId}`)
 
             if (response?.validationError) {
                 NotificationAction.notificationWarning(response?.validationError)
             } else if (response?.error) {
-                NotificationAction.notificationError(response?.error)
-            } else if (response?.positions) {
-                setPositions(response.positions.map((position: any) => ({ ID: position.companyPositionId, label: position.name })))
+                NotificationAction.notificationError(response.error)
+            } else if (response?.witness) {
+                setWitness(response.witness)
+                setItems(response.witness.map(witness => ({ ID: witness.victimWitnessId, label: `${witness.firstName} ${witness.lastName}` })))
             }
         }
 
@@ -41,7 +46,11 @@ function CompanyPositionsSelectComponent(props: CompanyPositionsSelectComponentP
     }
 
     function handleSelectionChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        props.handleChooseValue(e.target.value)
+        const filter = witness.find(witness => witness.victimWitnessId === e.target.value)
+
+        if(filter) {
+            props.handleChooseValue(filter)
+        }
     }
 
     async function handleList(): Promise<void> {
@@ -49,7 +58,7 @@ function CompanyPositionsSelectComponent(props: CompanyPositionsSelectComponentP
             setLoading(true)
             loadingRef.current = true
 
-            await init()
+            await listVictimWitness(props.victimId as string)
 
             setLoading(false)
             loadingRef.current = false
@@ -58,14 +67,14 @@ function CompanyPositionsSelectComponent(props: CompanyPositionsSelectComponentP
 
     return (
         <SelectComponent
-            itens={positions}
+            itens={items}
             label={props.label}
             variant={props.variant}
             align={props.align}
             className={props.className}
             radius={props.radius}
             onChange={handleSelectionChange}
-            disabled={!!props.companyId || false}
+            disabled={!!props.victimId || false}
             onOpenChange={handleList}
             isLoading={loading}
         />
@@ -73,5 +82,5 @@ function CompanyPositionsSelectComponent(props: CompanyPositionsSelectComponentP
 }
 
 export {
-    CompanyPositionsSelectComponent
+    VictimWitnessSelectComponent
 }
