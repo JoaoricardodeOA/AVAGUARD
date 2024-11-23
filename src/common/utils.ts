@@ -18,8 +18,16 @@ function maskPhone(value: string) {
         .replace(/(-\d{4})\d+?$/, '$1')
 }
 
+function parceValueToBRL(value: number) {
+    return value.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    })
+}
+
 export {
     removeMasks,
     formatCPF,
-    maskPhone
+    maskPhone,
+    parceValueToBRL
 }
