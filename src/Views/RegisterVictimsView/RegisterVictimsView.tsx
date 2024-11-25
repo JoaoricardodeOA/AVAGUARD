@@ -101,12 +101,14 @@ function RegisterVictimsView() {
 
         const response = await avaguardService.post('/createVictim', { ...req })
 
-        if (!response.error) {
-            NotificationAction.notificationSuccess('Vítima cadastrada com sucesso.')
-            
-            router.push('/home')
-        } else {
+        if (response?.validationError) {
+            NotificationAction.notificationWarning(response?.validationError)
+        } else if (response?.error) {
             NotificationAction.notificationError(response.error)
+        } else {
+            NotificationAction.notificationSuccess('Vítima cadastrada com sucesso.')
+
+            router.push('/home')
         }
 
         setLoading(false)
@@ -140,11 +142,11 @@ function RegisterVictimsView() {
         const incidents: CreateVictimIncidentUseCaseDTOInputType[] = []
 
         for (let i = 0; i < input.length; i++) {
-            const incident = input[i];
+            const incident = input[i]
             const evidences: string[] = []
 
             for (let j = 0; j < incident.files.length; j++) {
-                const file = incident.files[j];
+                const file = incident.files[j]
 
                 try {
                     const url = await uploadFile(file, 'victim-incident')
@@ -172,7 +174,7 @@ function RegisterVictimsView() {
         const files: CreateVictimFileUseCaseDTOInput[] = []
 
         for (let i = 0; i < input.length; i++) {
-            const file = input[i];
+            const file = input[i]
 
             try {
                 const url = await uploadFile(file.file, 'victim-files')
