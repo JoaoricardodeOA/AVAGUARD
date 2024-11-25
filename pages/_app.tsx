@@ -5,6 +5,7 @@ import { Roboto } from 'next/font/google'
 import '@fontsource/roboto'
 import { ReactNotifications } from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css'
+import { SessionProvider } from "next-auth/react"
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -13,11 +14,13 @@ const roboto = Roboto({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <NextUIProvider>
-      <div className={roboto.className}>
-        <ReactNotifications />
-        <Component {...pageProps} />
-      </div>
-    </NextUIProvider>
+    <SessionProvider session={pageProps.session}>
+      <NextUIProvider>
+        <div className={roboto.className}>
+          <ReactNotifications />
+          <Component {...pageProps} />
+        </div>
+      </NextUIProvider>
+    </SessionProvider>
   )
 }

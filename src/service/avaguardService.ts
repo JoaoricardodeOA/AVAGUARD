@@ -1,11 +1,11 @@
 import axios from 'axios'
+import getConfig from 'next/config'
+const { publicRuntimeConfig } = getConfig()
 
 class AvaguardService {
-    private baseURL: string
     private timeout: number
 
-    constructor(baseURL: string, timeout = 5000) {
-        this.baseURL = baseURL
+    constructor(timeout = 5000) {
         this.timeout = timeout
     }
 
@@ -27,9 +27,11 @@ class AvaguardService {
 
     private async request(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, data?: any): Promise<any> {
         try {
+            const url = publicRuntimeConfig.NEXT_PUBLIC_AVAGUARD_API_URL
+
             const response = await axios({
                 method,
-                url: `${this.baseURL}${endpoint}`,
+                url: `${url}${endpoint}`,
                 data,
                 timeout: this.timeout,
                 headers: {
@@ -48,7 +50,7 @@ class AvaguardService {
     }
 }
 
-const avaguardService = new AvaguardService('http://localhost:3500')
+const avaguardService = new AvaguardService()
 
 export {
     avaguardService
