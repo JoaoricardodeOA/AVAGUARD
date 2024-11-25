@@ -1,4 +1,4 @@
-import { Card, CardBody,  CardHeader } from "@nextui-org/react"
+import { Card, CardBody, CardHeader } from "@nextui-org/react"
 import { useRouter } from "next/router"
 
 interface CardComponentProps {
@@ -21,7 +21,7 @@ function CardComponent(props: CardComponentProps) {
             <CardHeader className="flex justify-center flex-col">
                 <img
                     alt="nextui logo"
-                    // src={props.imgURL}
+                    src={props.imgURL}
                     className="rounded-full"
                     style={{ width: '60px', height: '60px' }}
                 />

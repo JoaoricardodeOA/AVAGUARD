@@ -36,15 +36,6 @@ const columns = [
 
 const users = [
     {
-        id: 1,
-        name: "Tony Reichert",
-        position: "CEO",
-        company: "Management",
-        status: "in_recording",
-        avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-        phone: "(81) 99876-0892",
-    },
-    {
         id: 2,
         name: "Zoey Lang",
         position: "CEO",
@@ -63,15 +54,6 @@ const users = [
         phone: "(81) 99876-0892",
     },
     {
-        id: 4,
-        name: "William Howard",
-        position: "CEO",
-        company: "Management",
-        status: "finish",
-        avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-        phone: "(81) 99876-0892",
-    },
-    {
         id: 5,
         name: "Kristen Copper",
         position: "CEO",
@@ -79,7 +61,7 @@ const users = [
         status: "finish",
         avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
         phone: "(81) 99876-0892",
-    },
+    }
 ]
 
 export { columns, users }

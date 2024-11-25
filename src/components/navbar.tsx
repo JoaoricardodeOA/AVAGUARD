@@ -81,25 +81,25 @@ export const Navbar = () => {
           }
 
           {
-            router.pathname === '/home' ? (
+            router.pathname === '/' ? (
+              <NavbarItem key='/test' className="">
+                <ButtonPrimary variantIcon="right" variant="md" icon={<ArrowRight size={16} />}
+                  onClick={handleClick}>
+                  Entrar
+                </ButtonPrimary>
+              </NavbarItem>
+            ) : router.pathname === '/home' ? (
               <NavbarItem key='/test' className="">
                 <ButtonPrimary variantIcon="right" variant="md" icon={<ArrowRight size={16} />}
                   onClick={() => signOut()}>
                   Sair
                 </ButtonPrimary>
               </NavbarItem>
-            ) : router.pathname !== '/home' ? (
+            ) : (
               <NavbarItem key='/test' className="">
                 <ButtonPrimary variantIcon="left" variant="md" icon={<ArrowLeft size={16} />}
                   onClick={() => router.back()}>
                   Voltar
-                </ButtonPrimary>
-              </NavbarItem>
-            ) : (
-              <NavbarItem key='/test' className="">
-                <ButtonPrimary variantIcon="right" variant="md" icon={<ArrowRight size={16} />}
-                  onClick={handleClick}>
-                  Entrar
                 </ButtonPrimary>
               </NavbarItem>
             )
