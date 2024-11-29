@@ -1,263 +1,251 @@
-import { parseDateFromDDMMYYYY } from "@/src/common/dates"
-import { ApexChart, ChartOptions, SeriesFormat } from "@/src/components/ApexChart/Chart"
+import { decodeEmployeesRecordingStatus, maskPhone } from "@/src/common/utils"
+import { EmployeesRecordingAnalysisModal } from "@/src/components/Modals/EmployeesRecordingAnalysisModal"
 import { Navbar } from "@/src/components/navbar"
-import { Card, CardBody, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, User } from "@nextui-org/react"
-import { EyeIcon } from "lucide-react"
-import React from "react"
+import { NotificationAction } from "@/src/components/Notifications/Notification"
+import { EmployeesRecordingStatusEnum } from "@/src/enum/employees_recording"
+import { avaguardService } from "@/src/service/avaguardService"
+import { CountRealtimeEmployeesRecordingsType, ListRealtimeEmployeesRecordingsType, ListRealtimeEmployeesRecordingsUseCaseDTOOutput } from "@/src/types/employees_recording"
+import { Card, CardBody, Chip, Pagination, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure, User } from "@nextui-org/react"
+import { EyeIcon, Play } from "lucide-react"
+import { useSession } from "next-auth/react"
+import React, { useMemo, useRef } from "react"
 import { useEffect, useState } from "react"
-
-type DataType = "RECIPES" | "EXPENSE"
-
-interface Transaction {
-    date: string // formato DD/MM/YYYY
-    type: DataType
-    price: number
-}
-
-interface FormattedData {
-    labels: string[]
-    recipes: number[]
-    expenses: number[]
-}
-
-interface DailyTotals {
-    [key: string]: {
-        recipes: number
-        expenses: number
-    }
-}
 
 const columns = [
     { name: "Funcionária", uid: "employee" },
+    { name: "Data", uid: "date" },
     { name: "Empresa", uid: "company" },
     { name: "Status", uid: "status" },
     { name: "Ação", uid: "actions" },
 ]
 
-const users = [
-    {
-        id: 2,
-        name: "Zoey Lang",
-        position: "CEO",
-        company: "Management",
-        status: "in_recording",
-        avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-        phone: "(81) 99876-0892",
-    },
-    {
-        id: 3,
-        name: "Jane Fisher",
-        position: "CEO",
-        company: "Management",
-        status: "in_recording",
-        avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-        phone: "(81) 99876-0892",
-    },
-    {
-        id: 5,
-        name: "Kristen Copper",
-        position: "CEO",
-        company: "Management",
-        status: "finish",
-        avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
-        phone: "(81) 99876-0892",
-    }
-]
-
-export { columns, users }
-
 function RealtimeRecordsView() {
-    const [options, setOptions] = useState<ChartOptions>()
-    const [series, setSeries] = useState<SeriesFormat>()
+    const [employeesRecordings, setEmployeesRecordings] = useState<ListRealtimeEmployeesRecordingsType[]>([])
+    const [employeesRecordingsCount, setEmployeesRecordingsCount] = useState<CountRealtimeEmployeesRecordingsType | null>(null)
+    const [loading, setLoading] = useState<boolean>(true)
+    const rowsPerPage = 8
+    const [page, setPage] = useState(1)
+    const pages = Math.ceil(employeesRecordings.length / rowsPerPage)
+    const intervalRef = useRef<NodeJS.Timeout | null>(null)
+    const modalEmployeesRecordingAnalysis = useDisclosure()
+    const [selectedEmployeesRecording, setSelectedEmployeesRecording] = useState<ListRealtimeEmployeesRecordingsType | null>(null)
+    const { data: session } = useSession()
 
     useEffect(() => {
-        createComponent()
+        init()
+
+        if (!intervalRef.current) {
+            intervalRef.current = setInterval(reloadPage, 5000)
+        }
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current)
+            }
+        }
     }, [])
 
-    async function createComponent(): Promise<void> {
-        const recipes: Transaction[] = [
-            { date: "01/11/2024", type: "RECIPES", price: 1200.5 },
-            { date: "02/11/2024", type: "RECIPES", price: 2500.0 },
-            { date: "03/11/2024", type: "RECIPES", price: 1800.75 },
-            { date: "01/11/2024", type: "RECIPES", price: 400.25 },
-            { date: "04/11/2024", type: "RECIPES", price: 3200.0 },
-        ]
-        const expense: Transaction[] = [
-            { date: "01/11/2024", type: "EXPENSE", price: 800.0 },
-            { date: "02/11/2024", type: "EXPENSE", price: 1200.0 },
-            { date: "03/11/2024", type: "EXPENSE", price: 750.25 },
-            { date: "04/11/2024", type: "EXPENSE", price: 950.0 },
-            { date: "04/11/2024", type: "EXPENSE", price: 400.0 },
-        ]
+    const items = useMemo(() => {
+        const start = (page - 1) * rowsPerPage
+        const end = start + rowsPerPage
 
-        const formattedData: FormattedData = transformData([...recipes, ...expense])
-        const series: SeriesFormat = seriesFormat([
-            formattedData.recipes,
-            formattedData.expenses,
-            formattedData.labels,
-        ])
+        return employeesRecordings.slice(start, end)
+    }, [page, employeesRecordings])
 
-        const options: ChartOptions = formattedOptions(series)
+    async function init(): Promise<void> {
+        const response = await avaguardService.get<ListRealtimeEmployeesRecordingsUseCaseDTOOutput>(`/listRealtimeEmployeesRecordings`)
 
-        setOptions(options)
-        setSeries(series)
+        if (response?.validationError) {
+            NotificationAction.notificationWarning(response?.validationError)
+        } else if (response?.error) {
+            NotificationAction.notificationError(response.error)
+        } else if (response?.realtimeEmployees) {
+            setEmployeesRecordings(response?.realtimeEmployees)
+            setEmployeesRecordingsCount(response?.count || null)
+        }
+
+        setLoading(false)
     }
 
-    function seriesFormat(data: any[]): SeriesFormat {
-        return {
-            series: [10, 20],
-            categories: ["Em gravação", "Gravação Finalizada"],
+    async function reloadPage() {
+        await init()
+    }
+
+    function getStatusColor(status: string): string {
+        switch (status) {
+            case EmployeesRecordingStatusEnum.IN_RECORDING:
+                return 'bg-[#FFCC00]'
+            case EmployeesRecordingStatusEnum.FINISHED:
+                return 'bg-[#28a745]'
+            case EmployeesRecordingStatusEnum.CANCELED:
+                return 'bg-[#dc3545]'
+            case EmployeesRecordingStatusEnum.IN_ANALYSIS:
+                return 'bg-[#17a2b8]'
+            case EmployeesRecordingStatusEnum.ANALYSIS_FINISHED:
+                return 'bg-[#66bb6a]'
+            default:
+                return 'bg-[#6c757d]'
         }
     }
 
-    function transformData(data: Transaction[]): FormattedData {
-        const formattedData: FormattedData = {
-            labels: [],
-            recipes: [],
-            expenses: [],
-        }
+    if (loading) {
+        return (
+            <div className="h-[90vh] flex justify-center items-center">
+                <Spinner size="lg" />
+            </div>
+        )
+    }
 
-        const dailyTotals: DailyTotals = {}
-
-        data.forEach((item: Transaction) => {
-            const date = parseDateFromDDMMYYYY(item.date)
-
-            if (!formattedData.labels.includes(date)) {
-                formattedData.labels.push(date)
-            }
-
-            if (!dailyTotals[date]) {
-                dailyTotals[date] = {
-                    recipes: 0,
-                    expenses: 0,
-                }
-            }
-
-            if (item.type === "RECIPES") {
-                dailyTotals[date].recipes += item.price
-            } else if (item.type === "EXPENSE") {
-                dailyTotals[date].expenses += item.price
-            }
+    async function handleOnClickInitAnalysisEmployeesRecording(employeesRecording: ListRealtimeEmployeesRecordingsType) {
+        const response = await avaguardService.post(`/initAnalysisEmployeesRecording`, {
+            employeesRecordingId: employeesRecording.employeesRecordingId,
+            userAnalyzing: session?.user?.id
         })
 
-        formattedData.labels.forEach((label) => {
-            formattedData.recipes.push(dailyTotals[label].recipes)
-            formattedData.expenses.push(dailyTotals[label].expenses)
-        })
-
-        return formattedData
+        if (response?.validationError) {
+            NotificationAction.notificationWarning(response?.validationError)
+        } else if (response?.error) {
+            NotificationAction.notificationError(response.error)
+        } else if (response?.employeesRecording) {
+            setSelectedEmployeesRecording(employeesRecording)
+            modalEmployeesRecordingAnalysis.onOpen()
+            await init()
+        }
     }
 
-    function formattedOptions(series: SeriesFormat): ChartOptions {
-        const options: ChartOptions = {
-            chart: {
-                type: "pie",
-                toolbar: {
-                    show: false
-                }
-            },
-            colors: ["#a7adfb", "#db3d3a"],
-            legend: {
-                position: "bottom",
-            },
-            dataLabels: {
-                enabled: true
-            },
-            tooltip: {
-                enabled: true,
-                shared: false,
-            },
-            noData: {
-                text: "Sem Dados",
-                align: "center",
-                verticalAlign: "middle",
-                style: {
-                    fontSize: "20px",
-                },
-            },
-            labels: series.categories || [],
-            series: series.series || []
-        }
-
-        return options
+    async function handleOnClickViewAnalysisEmployeesRecording(employeesRecording: ListRealtimeEmployeesRecordingsType) {
+        setSelectedEmployeesRecording(employeesRecording)
+        modalEmployeesRecordingAnalysis.onOpen()
     }
 
     return (
         <>
             <Navbar />
 
-            <div className="container max-w-screen-xl mx-auto px-10 mt-14">
+            <div className="container max-w-screen-xl mx-auto px-10 mt-8">
                 <div className="w-full flex justify-between items-center">
                     <h1 className="text-2xl text-shade-1 font-medium">Monitoriamento de Gravações</h1>
                 </div>
 
-                <div className="flex mt-12 items-center justify-around w-100">
+                <div className="flex mt-6 items-center justify-around w-100">
                     <div className="flex gap-4">
-                        <Card className="p-4 w-1/3">
-                            <CardBody>
+                        <Card className="p-2 w-1/5">
+                            <CardBody className={`text-[#FFCC00]`}>
                                 <div>
                                     <div>
-                                        <h1 className="text-xl font-medium text-tint-3">Total de Gravações em Andamento</h1>
+                                        <h1 className="text-lg font-medium">Em Andamento</h1>
                                     </div>
                                     <p className="text-xs font-medium text-neutral-grey">Quantidade total de funcionárias realizando gravações hoje.</p>
                                 </div>
-                                <p className="mt-6 text-xl font-bold text-tint-3">50</p>
+                                <p className="mt-6 text-xl font-bold">Total: {employeesRecordingsCount?.inRecordingCount}</p>
                             </CardBody>
                         </Card>
-                        <Card className="p-4 w-1/3">
-                            <CardBody>
+                        <Card className="p-2 w-1/5">
+                            <CardBody className="text-[#28a745]">
                                 <div>
                                     <div>
-                                        <h1 className="text-xl font-medium" style={{ color: "#db3d3a" }}>Total de Gravações Finalizadas</h1>
+                                        <h1 className="text-xl font-medium">Finalizadas</h1>
                                     </div>
                                     <p className="text-xs font-medium text-neutral-grey">Quantidade total de funcionárias que já realizou gravações hoje.</p>
                                 </div>
-                                <p className="mt-6 text-xl font-bold" style={{ color: "#db3d3a" }}>45</p>
+                                <p className="mt-6 text-xl font-bold">Total: {employeesRecordingsCount?.finishedCount}</p>
                             </CardBody>
                         </Card>
-                        <Card className="p-4 w-1/3">
-                            <CardBody>
+                        <Card className="p-2 w-1/5">
+                            <CardBody className="text-[#17a2b8]">
                                 <div>
                                     <div>
-                                        <h1 className="text-xl font-medium text-action-success">Total de Gravações em Análise</h1>
+                                        <h1 className="text-xl font-medium">Em Análise</h1>
                                     </div>
                                     <p className="text-xs font-medium text-neutral-grey">Quantidade total de de gravações sendo análisadas.</p>
                                 </div>
-                                <p className="mt-6 text-xl font-bold text-action-success">45</p>
+                                <p className="mt-6 text-xl font-bold">Total: {employeesRecordingsCount?.inAnalysisCount}</p>
+                            </CardBody>
+                        </Card>
+                        <Card className="p-2 w-1/5">
+                            <CardBody className="text-[#66bb6a]">
+                                <div>
+                                    <div>
+                                        <h1 className="text-xl font-medium">Análize Finalizada</h1>
+                                    </div>
+                                    <p className="text-xs font-medium text-neutral-grey">Quantidade total de de gravações sendo análisadas.</p>
+                                </div>
+                                <p className="mt-6 text-xl font-bold">Total: {employeesRecordingsCount?.analysisFinishedCount}</p>
+                            </CardBody>
+                        </Card>
+                        <Card className="p-2 w-1/5">
+                            <CardBody className="text-[#dc3545]">
+                                <div>
+                                    <div>
+                                        <h1 className="text-xl font-medium">Canceladas</h1>
+                                    </div>
+                                    <p className="text-xs font-medium text-neutral-grey">Quantidade total de de gravações sendo análisadas.</p>
+                                </div>
+                                <p className="mt-6 text-xl font-bold">Total: {employeesRecordingsCount?.canceledCount}</p>
                             </CardBody>
                         </Card>
                     </div>
-                    {/* <div className="w-1/2">
-                        <ApexChart type="pie" options={options as ChartOptions} series={series?.series as number[]} height={300} />
-                    </div> */}
                 </div>
 
-                <div className="mt-8">
-                    <Table aria-label="Example table with custom cells">
+                <div className="mt-4 h-[630px]">
+                    <Table
+                        aria-label="Example table with custom cells"
+                        bottomContent={
+                            <div className="flex w-full justify-end">
+                                <Pagination
+                                    isCompact
+                                    showControls
+                                    showShadow
+                                    color="primary"
+                                    page={page}
+                                    total={pages}
+                                    onChange={(page) => setPage(page)}
+                                />
+                            </div>
+                        }
+                        classNames={{
+                            wrapper: "h-full shadow-none",
+                        }}
+                        className="h-full shadow-none"
+                    >
                         <TableHeader columns={columns}>
-                            {(column) => (
-                                <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-                                    {column.name}
-                                </TableColumn>
-                            )}
+                            <TableColumn style={{ width: '25%' }}>
+                                Funcionária
+                            </TableColumn>
+                            <TableColumn style={{ width: '25%' }}>
+                                Data
+                            </TableColumn>
+                            <TableColumn style={{ width: '25%' }}>
+                                Empresa
+                            </TableColumn>
+                            <TableColumn style={{ width: '15%' }}>
+                                Status
+                            </TableColumn>
+                            <TableColumn align={"center"}>
+                                Ação
+                            </TableColumn>
                         </TableHeader>
-                        <TableBody items={users}>
+                        <TableBody items={items}>
                             {
-                                users.map(user => (
-                                    <TableRow key={user.id}>
+                                items.map(employeesRecording => (
+                                    <TableRow key={employeesRecording.employeesRecordingId}>
                                         <TableCell>
                                             <User
-                                                avatarProps={{ radius: "lg", src: user.avatar }}
-                                                description={user.phone}
-                                                name={user.name}
+                                                avatarProps={{ radius: "lg", src: employeesRecording.avatar }}
+                                                description={maskPhone(employeesRecording.phone)}
+                                                name={employeesRecording.name}
                                             >
-                                                {user.phone}
+                                                {maskPhone(employeesRecording.phone)}
                                             </User>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
-                                                <p className="text-bold text-sm capitalize">{user.company}</p>
-                                                <p className="text-bold text-sm capitalize text-default-400">{user.position}</p>
+                                                <p className="text-bold text-sm capitalize">{employeesRecording.date}</p>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col">
+                                                <p className="text-bold text-sm capitalize">{employeesRecording.companyName}</p>
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -267,25 +255,43 @@ function RealtimeRecordsView() {
                                                 variant="flat"
                                                 classNames={{
                                                     base: `
-                                                    ${user.status === "in_recording" ? "bg-[#a7adfb]" : ""} 
-                                                    ${user.status === "finish" ? "bg-[#db3d3a]" : ""}
+                                                    ${getStatusColor(employeesRecording.status)}
                                                     bg-gradient-to-br border-small border-white/50
                                                     shadow-pink-500/30`,
                                                     content: "drop-shadow shadow-black text-white",
                                                 }}
                                             >
-                                                {user.status === 'finish' ? 'Gravação Finalizada' : 'Gravação em Andamento'}
+                                                {decodeEmployeesRecordingStatus(employeesRecording.status)}
                                             </Chip>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="relative flex items-center justify-center gap-2">
-                                                <Tooltip content="Visualizar Gravação">
-                                                    <button onClick={() => window.open('https://www.youtube.com/watch?v=h8UC1VtLr9w', "blank")}>
-                                                        <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                                            <EyeIcon size={18} />
-                                                        </span>
-                                                    </button>
-                                                </Tooltip>
+                                            <div className="flex items-center justify-center gap-2">
+                                                {
+                                                    employeesRecording.status === EmployeesRecordingStatusEnum.FINISHED && (
+                                                        <>
+                                                            <Tooltip content="Iniciar Análise">
+                                                                <button onClick={() => handleOnClickInitAnalysisEmployeesRecording(employeesRecording)}>
+                                                                    <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                                                                        <Play size={18} />
+                                                                    </span>
+                                                                </button>
+                                                            </Tooltip>
+                                                        </>
+                                                    )
+                                                }
+                                                {
+                                                    employeesRecording.status === EmployeesRecordingStatusEnum.IN_ANALYSIS && (
+                                                        <>
+                                                            <Tooltip content="visualizar Análise">
+                                                                <button onClick={() => handleOnClickViewAnalysisEmployeesRecording(employeesRecording)}>
+                                                                    <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                                                                        <EyeIcon size={18} />
+                                                                    </span>
+                                                                </button>
+                                                            </Tooltip>
+                                                        </>
+                                                    )
+                                                }
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -295,6 +301,12 @@ function RealtimeRecordsView() {
                     </Table>
                 </div>
             </div>
+
+            <EmployeesRecordingAnalysisModal
+                employeesRecording={selectedEmployeesRecording as ListRealtimeEmployeesRecordingsType}
+                isOpen={modalEmployeesRecordingAnalysis.isOpen}
+                onOpenChange={modalEmployeesRecordingAnalysis.onOpenChange}
+            />
         </>
     )
 }

@@ -1,3 +1,5 @@
+import { EmployeesRecordingStatusEnum } from "../enum/employees_recording";
+
 function removeMasks(value: string): string {
     return value.replace(/\D/g, "")
 }
@@ -23,6 +25,23 @@ function parceValueToBRL(value: number) {
         style: 'currency',
         currency: 'BRL'
     })
+}
+
+export function decodeEmployeesRecordingStatus(status: string): string {
+    switch (status) {
+        case EmployeesRecordingStatusEnum.IN_RECORDING:
+            return 'Em gravação';
+        case EmployeesRecordingStatusEnum.FINISHED:
+            return 'Finalizado';
+        case EmployeesRecordingStatusEnum.CANCELED:
+            return 'Cancelado';
+        case EmployeesRecordingStatusEnum.IN_ANALYSIS:
+            return 'Em análise';
+        case EmployeesRecordingStatusEnum.ANALYSIS_FINISHED:
+            return 'Análise finalizada';
+        default:
+            return 'Status desconhecido';
+    }
 }
 
 export {
